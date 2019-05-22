@@ -739,6 +739,10 @@ abstract class AConfig
 							break;
 					}
 				}
+				else
+				{
+					list.add(null);
+				}
 			}
 		}
 	}
@@ -1227,42 +1231,51 @@ abstract class AConfig
 			element.setAttribute("type", listType);
 			for (Object o : list)
 			{
-				String typeName = o.getClass().getTypeName();
-				Element item = document.createElement("item");
-				item.setAttribute("type", getMapping(typeName));
-				switch (typeName)
+				if(o != null)
 				{
-					case "java.lang.String":
-					case "boolean":
-					case "byte":
-					case "char":
-					case "double":
-					case "float":
-					case "int":
-					case "long":
-					case "short":
-						item.setAttribute("value", o.toString());
-						break;
-					case "java.util.UUID":
+					String typeName = o.getClass().getTypeName();
+					Element item = document.createElement("item");
+					item.setAttribute("type", getMapping(typeName));
+					switch (typeName)
 					{
-						UUID uuid = (UUID) o;
-						long mostSigBits = uuid.getMostSignificantBits();
-						long leastSigBits = uuid.getLeastSignificantBits();
-						item.setAttribute("mostSigBits", Long.toString(mostSigBits));
-						item.setAttribute("leastSigBits", Long.toString(leastSigBits));
-						break;
-					}
-					default:
-						for (Field tmp : o.getClass().getDeclaredFields())
+						case "java.lang.String":
+						case "boolean":
+						case "byte":
+						case "char":
+						case "double":
+						case "float":
+						case "int":
+						case "long":
+						case "short":
+							item.setAttribute("value", o.toString());
+							break;
+						case "java.util.UUID":
 						{
-							if (tmp.isAnnotationPresent(Value.class))
-							{
-								this.saveObject(o, tmp, item, document);
-							}
+							UUID uuid = (UUID) o;
+							long mostSigBits = uuid.getMostSignificantBits();
+							long leastSigBits = uuid.getLeastSignificantBits();
+							item.setAttribute("mostSigBits", Long.toString(mostSigBits));
+							item.setAttribute("leastSigBits", Long.toString(leastSigBits));
+							break;
 						}
-						break;
+						default:
+							for (Field tmp : o.getClass().getDeclaredFields())
+							{
+								if (tmp.isAnnotationPresent(Value.class))
+								{
+									this.saveObject(o, tmp, item, document);
+								}
+							}
+							break;
+					}
+					element.appendChild(item);
 				}
-				element.appendChild(item);
+				else
+				{
+					Element item = document.createElement("item");
+					item.setAttribute("null", "true");
+					element.appendChild(item);
+				}
 			}
 		}
 	}
