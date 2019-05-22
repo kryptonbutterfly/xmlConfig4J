@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+    <types>
+        <item id="0" name="java.util.HashMap"/>
+        <item id="1" name="java.util.ArrayList"/>
+    </types>
+    <config>
+        <projectName value="xmlConfig4J"/>
+        <author info="Description for this field" value="tinycodecrank"/>
+        <comment value="null"/>
+        <someNumber value="1337"/>
+        <custom>
+            <foo value="Bar"/>
+        </custom>
+        <aMap type="0"/>
+        <aList type="1"/>
+        <dayEnum value="0"/>
+    </config>
+</root>
