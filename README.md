@@ -13,4 +13,4 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 ### License
 
-This project is licensed under Apache License 2.0 - seed the LICENSE file for defails
+This project is licensed under Apache License 2.0 - seed the [LICENSE](https://github.com/tinycodecrank/xmlConfig4J/blob/master/LICENSE) file for defails
