@@ -16,7 +16,7 @@ public abstract class FileConfig extends AConfig
 {
 	private static final Logger log = LogManager.getLogger(FileConfig.class);
 	
-	private File configFile;
+	protected File configFile;
 
 	public FileConfig(File config)
 	{
