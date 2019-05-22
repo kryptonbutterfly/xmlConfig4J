@@ -30,6 +30,9 @@ public class TinyExample extends FileConfig{
   @Value
   public int someNumber = 1337;
   
+  @Value
+  public CustomClass cc = new CustomClass();
+  
   private ArrayList<String> genFavFoods(){
     ArrayList<String> list = new ArrayList<>();
     list.add("Banana");
@@ -46,7 +49,13 @@ public class TinyExample extends FileConfig{
       config.load();  //read from the specified file and sets the annotated fields according
       config.favoriteFoods.forEach(System.out::println);
       System.out.println(config.someNumber);
+      System.out.println("PI: " + config.cc.pi);
     }
+  }
+
+  public static class CustomClass{
+    @Value
+    public double pi = Math.PI;
   }
 }
 ```
@@ -66,6 +75,9 @@ generates the config File ./config.xml :
       <item type="1" value="Cheese"/>
     </favoriteFoods>
     <someNumber value="1337"/>
+    <cc>
+      <pi value="3.141592653589793"/>
+    </cc>
   </config>
 </root>
 ```
