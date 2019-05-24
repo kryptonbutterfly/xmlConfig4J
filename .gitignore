@@ -2,3 +2,5 @@
 /jardesc/
 /.classpath
 /.project
+/target/
+/.settings/
