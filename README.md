@@ -5,16 +5,21 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 [xmlConfig4J.jar](https://github.com/tinycodecrank/xmlConfig4J/raw/master/build/xmlConfig4J.jar)
 
-### Dependencies
+## Dependencies
 [apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
 
 [apache / **logging-log4j2**](https://logging.apache.org/log4j/2.x/download.html)
 
-### License
+## License
 
 This project is licensed under Apache License 2.0 - see the [LICENSE](https://github.com/tinycodecrank/xmlConfig4J/blob/master/LICENSE) file for defails
 
-### Example
+## Contributing
+
+Please do contribute!  
+Any help with this project is much apprechiated.
+
+## Example
 
 The class TinyExample:
 ```java
@@ -80,8 +85,3 @@ generates the config File ./config.xml :
   </config>
 </root>
 ```
-
-## Contributing
-
-Please do contribute!
-Any help with this project is much apprechiated.
