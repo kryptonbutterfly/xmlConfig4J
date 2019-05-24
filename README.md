@@ -6,10 +6,9 @@ A Simple to use Library for Object de-/serialization to xml-Format
 [xmlConfig4J.jar](https://github.com/tinycodecrank/xmlConfig4J/raw/master/build/xmlConfig4J.jar)
 
 ### Dependencies
+[apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
 
-[Commons Lang](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
-
-[Log4j 2](https://logging.apache.org/log4j/2.x/download.html)
+[apache / **logging-log4j2**](https://logging.apache.org/log4j/2.x/download.html)
 
 ### License
 
