@@ -80,3 +80,8 @@ generates the config File ./config.xml :
   </config>
 </root>
 ```
+
+## Contributing
+
+Please do contribute!
+Any help with this project is much apprechiated.
