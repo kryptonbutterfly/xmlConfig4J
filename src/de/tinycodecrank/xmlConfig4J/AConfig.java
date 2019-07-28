@@ -221,229 +221,233 @@ abstract class AConfig
 
 	private final void loadObject(Node parent, Object object) throws ClassNotFoundException
 	{
-		Field[] fields = object.getClass().getDeclaredFields();
-		for (Field field : fields)
+		Class<?> oExtClass = object.getClass();
+		do
 		{
-			if (field.isAnnotationPresent(Value.class))
+			for (Field field : oExtClass.getDeclaredFields())
 			{
-				NodeList nodeList = parent.getChildNodes();
-				for (int i = 0; i < nodeList.getLength(); i++)
+				if (field.isAnnotationPresent(Value.class))
 				{
-					Node node = nodeList.item(i);
-					String name = node.getNodeName();
-					if (field.getName().equals(name))
+					NodeList nodeList = parent.getChildNodes();
+					for (int i = 0; i < nodeList.getLength(); i++)
 					{
-						field.setAccessible(true);
-						try
+						Node node = nodeList.item(i);
+						String name = node.getNodeName();
+						if (field.getName().equals(name))
 						{
-							Attr isNull = (Attr) node.getAttributes().getNamedItem("null");
-
-							Attr type = (Attr) node.getAttributes().getNamedItem("type");
-							String objectType;
-							if(type != null)
+							field.setAccessible(true);
+							try
 							{
-								objectType = type.getValue();
-							}
-							else
-							{
-								objectType = field.getType().getName();
-							}
-							objectType = getType(objectType);
-							switch (objectType)
-							{
-								case "java.lang.String":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object,
-												((Attr) node.getAttributes().getNamedItem("value")).getValue());
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "boolean":
-									field.set(object, Boolean.parseBoolean(
-											((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "byte":
-									field.set(object, Byte
-											.parseByte(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "char":
-									field.set(object,
-											((Attr) node.getAttributes().getNamedItem("value")).getValue().charAt(0));
-									break;
-								case "double":
-									field.set(object, Double.parseDouble(
-											((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "float":
-									field.set(object, Float.parseFloat(
-											((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "int":
-									field.set(object, Integer
-											.parseInt(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "long":
-									field.set(object, Long
-											.parseLong(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "short":
-									field.set(object, Short.parseShort(
-											((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									break;
-								case "java.util.UUID":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										long mostSigBits = Long.parseLong(
-												((Attr) node.getAttributes().getNamedItem("mostSigBits")).getValue());
-										long leastSigBits = Long.parseLong(
-												((Attr) node.getAttributes().getNamedItem("leastSigBits")).getValue());
-										UUID uuid = new UUID(mostSigBits, leastSigBits);
-										field.set(object, uuid);
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Boolean":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Boolean.parseBoolean(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Byte":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Byte.parseByte(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Short":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Short.parseShort(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Character":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, ((Attr) node.getAttributes().getNamedItem("value")).getValue()
-												.charAt(0));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Integer":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Integer.parseInt(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Long":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Long.parseLong(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Float":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Float.parseFloat(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								case "java.lang.Double":
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										field.set(object, Double.parseDouble(
-												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
-									}
-									else
-									{
-										field.set(object, null);
-									}
-									break;
-								default: // Any other object
-									if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
-									{
-										if (field.getType().isArray())
+								Attr isNull = (Attr) node.getAttributes().getNamedItem("null");
+	
+								Attr type = (Attr) node.getAttributes().getNamedItem("type");
+								String objectType;
+								if(type != null)
+								{
+									objectType = type.getValue();
+								}
+								else
+								{
+									objectType = field.getType().getName();
+								}
+								objectType = getType(objectType);
+								switch (objectType)
+								{
+									case "java.lang.String":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
 										{
-											this.loadArray(field, node, object);
-										}
-										else if (field.getType().isEnum())
-										{
-											this.loadEnum(field, node, object);
-										}
-										else if (Collection.class.isAssignableFrom(field.getType()))
-										{
-											this.loadList(field, node, object);
-										}
-										else if (Map.class.isAssignableFrom(field.getType()))
-										{
-											this.loadMap(field, node, object);
+											field.set(object,
+													((Attr) node.getAttributes().getNamedItem("value")).getValue());
 										}
 										else
 										{
-											Class<?> clazz;
-											if(type != null)
+											field.set(object, null);
+										}
+										break;
+									case "boolean":
+										field.set(object, Boolean.parseBoolean(
+												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "byte":
+										field.set(object, Byte
+												.parseByte(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "char":
+										field.set(object,
+												((Attr) node.getAttributes().getNamedItem("value")).getValue().charAt(0));
+										break;
+									case "double":
+										field.set(object, Double.parseDouble(
+												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "float":
+										field.set(object, Float.parseFloat(
+												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "int":
+										field.set(object, Integer
+												.parseInt(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "long":
+										field.set(object, Long
+												.parseLong(((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "short":
+										field.set(object, Short.parseShort(
+												((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										break;
+									case "java.util.UUID":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											long mostSigBits = Long.parseLong(
+													((Attr) node.getAttributes().getNamedItem("mostSigBits")).getValue());
+											long leastSigBits = Long.parseLong(
+													((Attr) node.getAttributes().getNamedItem("leastSigBits")).getValue());
+											UUID uuid = new UUID(mostSigBits, leastSigBits);
+											field.set(object, uuid);
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Boolean":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Boolean.parseBoolean(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Byte":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Byte.parseByte(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Short":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Short.parseShort(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Character":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, ((Attr) node.getAttributes().getNamedItem("value")).getValue()
+													.charAt(0));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Integer":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Integer.parseInt(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Long":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Long.parseLong(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Float":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Float.parseFloat(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									case "java.lang.Double":
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											field.set(object, Double.parseDouble(
+													((Attr) node.getAttributes().getNamedItem("value")).getValue()));
+										}
+										else
+										{
+											field.set(object, null);
+										}
+										break;
+									default: // Any other object
+										if (isNull == null || !isNull.getValue().equalsIgnoreCase("true"))
+										{
+											if (field.getType().isArray())
 											{
-												clazz = Class.forName(objectType);
+												this.loadArray(field, node, object);
+											}
+											else if (field.getType().isEnum())
+											{
+												this.loadEnum(field, node, object);
+											}
+											else if (Collection.class.isAssignableFrom(field.getType()))
+											{
+												this.loadList(field, node, object);
+											}
+											else if (Map.class.isAssignableFrom(field.getType()))
+											{
+												this.loadMap(field, node, object);
 											}
 											else
 											{
-												clazz = field.getType();
+												Class<?> clazz;
+												if(type != null)
+												{
+													clazz = Class.forName(objectType);
+												}
+												else
+												{
+													clazz = field.getType();
+												}
+												Object obj = clazz.getDeclaredConstructor().newInstance();
+												field.set(object, obj);
+												this.loadObject(node, obj);
 											}
-											Object obj = clazz.getDeclaredConstructor().newInstance();
-											field.set(object, obj);
-											this.loadObject(node, obj);
 										}
-									}
-									break;
+										break;
+								}
 							}
-						}
-						catch (IllegalArgumentException | IllegalAccessException | InstantiationException
-								| NoSuchMethodException | SecurityException | InvocationTargetException e)
-						{
-							log.error(e.getMessage(), e);
+							catch (IllegalArgumentException | IllegalAccessException | InstantiationException
+									| NoSuchMethodException | SecurityException | InvocationTargetException e)
+							{
+								log.error(e.getMessage(), e);
+							}
 						}
 					}
 				}
 			}
 		}
+		while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 	}
 
 	private final void loadEnum(Field field, Node node, Object container)
@@ -728,13 +732,18 @@ abstract class AConfig
 								Object o = constructor.newInstance();
 		
 								list.add(o);
-								for (Field tmp : o.getClass().getFields())
+								Class<?> oExtClass = o.getClass();
+								do
 								{
-									if (tmp.isAnnotationPresent(Value.class))
+									for (Field tmp : oExtClass.getFields())
 									{
-										this.loadObject(item, o);
+										if (tmp.isAnnotationPresent(Value.class))
+										{
+											this.loadObject(item, o);
+										}
 									}
 								}
+								while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 							}
 							break;
 					}
@@ -855,13 +864,18 @@ abstract class AConfig
 								if(keyClass != null)
 								{
 									key = keyClass.getDeclaredConstructor().newInstance();
-									for (Field tmp : key.getClass().getFields())
+									Class<?> oExtClass = keyClass;
+									do
 									{
-										if (tmp.isAnnotationPresent(Value.class))
+										for (Field tmp : oExtClass.getFields())
 										{
-											this.loadObject(keyNode, key);
+											if (tmp.isAnnotationPresent(Value.class))
+											{
+												this.loadObject(keyNode, key);
+											}
 										}
 									}
+									while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 								}
 								break;
 						}
@@ -935,13 +949,18 @@ abstract class AConfig
 								if(valueClass != null)
 								{
 									value = valueClass.getDeclaredConstructor().newInstance();
-									for (Field tmp : value.getClass().getFields())
+									Class<?> oExtClass = valueClass;
+									do
 									{
-										if (tmp.isAnnotationPresent(Value.class))
+										for (Field tmp : value.getClass().getFields())
 										{
-											this.loadObject(valueNode, value);
+											if (tmp.isAnnotationPresent(Value.class))
+											{
+												this.loadObject(valueNode, value);
+											}
 										}
 									}
+									while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 								}
 								break;
 						}
@@ -965,15 +984,8 @@ abstract class AConfig
 			Element rootElement = document.createElement("root");
 			Element configElement = document.createElement("config");
 
-			for (Field field : this.getClass().getDeclaredFields())
-			{
-				if (field.isAnnotationPresent(Value.class))
-				{
-					this.saveObject(this, field, configElement, document);
-				}
-			}
 			Class<?> tmpClass = this.getClass();
-			while((tmpClass = tmpClass.getSuperclass()) != null && tmpClass != Object.class)
+			do
 			{
 				for(Field tmp : tmpClass.getDeclaredFields())
 				{
@@ -983,6 +995,7 @@ abstract class AConfig
 					}
 				}
 			}
+			while((tmpClass = tmpClass.getSuperclass()) != null && tmpClass != Object.class);
 			
 			if(mapTypes)
 			{
@@ -1113,15 +1126,8 @@ abstract class AConfig
 						{
 							element.setAttribute("type", getMapping(typeName));
 						}
-						for (Field tmp : object.getClass().getDeclaredFields())
-						{
-							if (field.isAnnotationPresent(Value.class))
-							{
-								this.saveObject(object, tmp, element, document);
-							}
-						}
 						Class<?> tmpClass = object.getClass();
-						while((tmpClass = tmpClass.getSuperclass()) != null && tmpClass != Object.class)
+						do
 						{
 							for(Field tmp : tmpClass.getDeclaredFields())
 							{
@@ -1131,6 +1137,7 @@ abstract class AConfig
 								}
 							}
 						}
+						while((tmpClass = tmpClass.getSuperclass()) != null && tmpClass != Object.class);
 					}
 				}
 				break;
@@ -1202,13 +1209,18 @@ abstract class AConfig
 						type = getMapping(array.getClass().getComponentType().getName());
 						item.setAttribute("type", type);
 						Object obj = Array.get(array, i);
-						for (Field tmp : obj.getClass().getDeclaredFields())
+						Class<?> oExtClass = obj.getClass();
+						do
 						{
-							if (tmp.isAnnotationPresent(Value.class))
+							for (Field tmp : oExtClass.getDeclaredFields())
 							{
-								this.saveObject(obj, tmp, item, document);
+								if (tmp.isAnnotationPresent(Value.class))
+								{
+									this.saveObject(obj, tmp, item, document);
+								}
 							}
 						}
+						while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 						element.appendChild(item);
 					}
 					break;
@@ -1259,13 +1271,18 @@ abstract class AConfig
 							break;
 						}
 						default:
-							for (Field tmp : o.getClass().getDeclaredFields())
+							Class<?> oExtClass = o.getClass();
+							do
 							{
-								if (tmp.isAnnotationPresent(Value.class))
+								for (Field tmp : oExtClass.getDeclaredFields())
 								{
-									this.saveObject(o, tmp, item, document);
+									if (tmp.isAnnotationPresent(Value.class))
+									{
+										this.saveObject(o, tmp, item, document);
+									}
 								}
 							}
+							while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 							break;
 					}
 					element.appendChild(item);
@@ -1342,13 +1359,18 @@ abstract class AConfig
 						break;
 					}
 					default:
-						for (Field tmp : entry.getKey().getClass().getDeclaredFields())
+						Class<?> oExtClass = entry.getKey().getClass();
+						do
 						{
-							if (tmp.isAnnotationPresent(Value.class))
+							for (Field tmp : oExtClass.getDeclaredFields())
 							{
-								this.saveObject(entry.getKey(), tmp, key, document);
+								if (tmp.isAnnotationPresent(Value.class))
+								{
+									this.saveObject(entry.getKey(), tmp, key, document);
+								}
 							}
 						}
+						while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 						break;
 				}
 				switch (valueType)
@@ -1376,13 +1398,18 @@ abstract class AConfig
 						break;
 					}
 					default:
-						for (Field tmp : entry.getValue().getClass().getDeclaredFields())
+						Class<?> oExtClass = entry.getValue().getClass();
+						do
 						{
-							if (tmp.isAnnotationPresent(Value.class))
+							for (Field tmp : oExtClass.getDeclaredFields())
 							{
-								this.saveObject(entry.getValue(), tmp, value, document);
+								if (tmp.isAnnotationPresent(Value.class))
+								{
+									this.saveObject(entry.getValue(), tmp, value, document);
+								}
 							}
 						}
+						while((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 						break;
 				}
 				item.appendChild(key);
