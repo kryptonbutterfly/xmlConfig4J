@@ -17,7 +17,7 @@ This project is licensed under Apache License 2.0 - see the [LICENSE](https://gi
 ## Contributing
 
 Please do contribute!  
-Any help with this project is much apprechiated.
+Any help with this project is much appreciated.
 
 ## Example
 
