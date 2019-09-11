@@ -81,12 +81,12 @@ public class Example extends FileConfig
 	
 	private void printConfigContent()
 	{
-		System.out.printf("Projectname:%t%s%n", projectName);
-		System.out.printf("Author:%t%s%n", author);
-		System.out.printf("Comment:%t%s%n", comment);
-		System.out.printf("Some Number:%s%d%n", someNumber);
-		System.out.printf("Custom:%t%s%n", custom);
-		System.out.printf("Day.%t%s%n", dayEnum.name());
+		System.out.printf("Projectname:\t%s%n", projectName);
+		System.out.printf("Author:\t%s%n", author);
+		System.out.printf("Comment:\t%s%n", comment);
+		System.out.printf("Some Number:\t%d%n", someNumber);
+		System.out.printf("Custom:\t%s%n", custom);
+		System.out.printf("Day.\t%s%n", dayEnum.name());
 	}
 	
 	private void changeValues()
