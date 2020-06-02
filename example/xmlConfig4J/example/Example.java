@@ -94,5 +94,7 @@ public class Example extends FileConfig
 		dayEnum = Day.FRIDAY;
 		comment = "The config has changed!";
 		someNumber = 42;
+		aMap.put("42", 42.0);
+		aMap.put("pi", Math.PI);
 	}
 }

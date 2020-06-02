@@ -15,5 +15,6 @@
         <aMap type="0"/>
         <aList type="1"/>
         <dayEnum value="0"/>
+        <changeConfig value="true"/>
     </config>
 </root>
