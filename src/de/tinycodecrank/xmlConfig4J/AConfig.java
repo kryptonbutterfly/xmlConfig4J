@@ -811,29 +811,28 @@ abstract class AConfig
 							case "java.lang.String":
 								key = ((Attr) keyNode.getAttributes().getNamedItem("value")).getValue();
 								break;
-							case "boolean":
-								key = Boolean
-										.parseBoolean(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Boolean":
+								key = Boolean.parseBoolean(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "byte":
+							case "java.lang.Byte":
 								key = Byte.parseByte(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "char":
+							case "java.lang.Character":
 								key = ((Attr) keyNode.getAttributes().getNamedItem("value")).getValue().charAt(0);
 								break;
-							case "double":
+							case "java.lang.Double":
 								key = Double.parseDouble(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "float":
+							case "java.lang.Float":
 								key = Float.parseFloat(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "int":
+							case "java.lang.Integer":
 								key = Integer.parseInt(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "long":
+							case "java.lang.Long":
 								key = Long.parseLong(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "short":
+							case "java.lang.Short":
 								key = Short.parseShort(((Attr) keyNode.getAttributes().getNamedItem("value")).getValue());
 								break;
 							case "java.util.UUID":
@@ -892,34 +891,29 @@ abstract class AConfig
 							case "java.lang.String":
 								value = ((Attr) valueNode.getAttributes().getNamedItem("value")).getValue();
 								break;
-							case "boolean":
-								value = Boolean
-										.parseBoolean(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Boolean":
+								value = Boolean.parseBoolean(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "byte":
+							case "java.lang.Byte":
 								value = Byte.parseByte(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "char":
+							case "java.lang.Character":
 								value = ((Attr) valueNode.getAttributes().getNamedItem("value")).getValue().charAt(0);
 								break;
-							case "double":
-								value = Double
-										.parseDouble(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Double":
+								value = Double.parseDouble(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "float":
-								value = Float
-										.parseFloat(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Float":
+								value = Float.parseFloat(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "int":
-								value = Integer
-										.parseInt(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Integer":
+								value = Integer.parseInt(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "long":
+							case "java.lang.Long":
 								value = Long.parseLong(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
-							case "short":
-								value = Short
-										.parseShort(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
+							case "java.lang.Short":
+								value = Short.parseShort(((Attr) valueNode.getAttributes().getNamedItem("value")).getValue());
 								break;
 							case "java.util.UUID":
 							{
@@ -1334,19 +1328,20 @@ abstract class AConfig
 				key.setAttribute("type", getMapping(keyType));
 				Element value = document.createElement("value");
 				value.setAttribute("type", getMapping(valueType));
+				
 				switch (keyType)
 				{
 					case "null":
 						break;
 					case "java.lang.String":
-					case "boolean":
-					case "byte":
-					case "char":
-					case "double":
-					case "float":
-					case "int":
-					case "long":
-					case "short":
+					case "java.lang.Boolean":
+					case "java.lang.Byte":
+					case "java.lang.Character":
+					case "java.lang.Double":
+					case "java.lang.Float":
+					case "java.lang.Integer":
+					case "java.lang.Long":
+					case "java.lang.Short":
 						key.setAttribute("value", entry.getKey().toString());
 						break;
 					case "java.util.UUID":
@@ -1378,14 +1373,14 @@ abstract class AConfig
 					case "null":
 						break;
 					case "java.lang.String":
-					case "boolean":
-					case "byte":
-					case "char":
-					case "double":
-					case "float":
-					case "int":
-					case "long":
-					case "short":
+					case "java.lang.Boolean":
+					case "java.lang.Byte":
+					case "java.lang.Character":
+					case "java.lang.Double":
+					case "java.lang.Float":
+					case "java.lang.Integer":
+					case "java.lang.Long":
+					case "java.lang.Short":
 						value.setAttribute("value", entry.getValue().toString());
 						break;
 					case "java.util.UUID":
