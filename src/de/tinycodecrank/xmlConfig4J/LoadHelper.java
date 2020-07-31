@@ -1,9 +1,10 @@
 package de.tinycodecrank.xmlConfig4J;
 
+import static de.tinycodecrank.xmlConfig4J.utils.Utils.getAttribute;
+import static de.tinycodecrank.xmlConfig4J.utils.Utils.loadIsNotNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -17,8 +18,6 @@ import org.w3c.dom.NodeList;
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
 import de.tinycodecrank.xmlConfig4J.parser.assignable.ParserAssignable;
-
-import static de.tinycodecrank.xmlConfig4J.utils.Utils.*;
 
 public class LoadHelper
 {
@@ -110,15 +109,7 @@ public class LoadHelper
 				{
 					objectType = field.getType();
 				}
-				AccessController.doPrivileged(new PrivilegedAction<Void>()
-				{
-					@Override
-					public Void run()
-					{
-						field.setAccessible(true);
-						return null;
-					}
-				});
+				PrivAction.doPrivileged(() -> field.setAccessible(true));
 				field.set(config, loadFromNode(objectType, node));
 			}
 			else
@@ -192,15 +183,7 @@ public class LoadHelper
 						{
 							try
 							{
-								AccessController.doPrivileged(new PrivilegedAction<Void>()
-								{
-									@Override
-									public Void run()
-									{
-										varField.setAccessible(true);
-										return null;
-									}
-								});
+								PrivAction.doPrivileged(() -> varField.setAccessible(true));
 								Attr		type	= getAttribute(node, TYPE);
 								Class<?>	objectType;
 								if (type != null)

@@ -1,8 +1,9 @@
 package de.tinycodecrank.xmlConfig4J;
 
+import static de.tinycodecrank.xmlConfig4J.utils.Utils.NULL;
+import static de.tinycodecrank.xmlConfig4J.utils.Utils.TRUE;
+
 import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -12,9 +13,6 @@ import org.w3c.dom.Element;
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
 import de.tinycodecrank.xmlConfig4J.parser.assignable.ParserAssignable;
-
-import static de.tinycodecrank.xmlConfig4J.utils.Utils.NULL;
-import static de.tinycodecrank.xmlConfig4J.utils.Utils.TRUE;
 
 public final class SaveHelper
 {
@@ -107,17 +105,7 @@ public final class SaveHelper
 							if(tmp.isAnnotationPresent(Value.class))
 							{
 								Value value = tmp.getAnnotation(Value.class);
-								AccessController.doPrivileged(new PrivilegedAction<Void>()
-								{
-
-									@Override
-									public Void run()
-									{
-										tmp.setAccessible(true);
-										return null;
-									}
-									
-								});
+								PrivAction.doPrivileged(() -> tmp.setAccessible(true));
 								Element field = saveObject(tmp.getName(), tmp.get(toSave), document);
 								if(value != null && value.value() != null && !value.value().isEmpty())
 								{
