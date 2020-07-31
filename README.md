@@ -22,7 +22,7 @@ Any help with this project is much appreciated.
 ## Example
 
 The class TinyExample:
-```java
+```
 public class TinyExample extends FileConfig
 {
   public TinyExample()
@@ -30,7 +30,7 @@ public class TinyExample extends FileConfig
     super(new File("./example.xml"));
   }
   
-  @Value("List of favourite foods.")
+  @Value("List of favorite foods.")
   public ArrayList<String> favoriteFoods = genFavFoods();
   
   @Value
@@ -112,7 +112,7 @@ public class TinyExample extends FileConfig
 ```
 generates the config File ./config.xml :
 
-```xml
+```
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root>
   <types>
@@ -123,7 +123,7 @@ generates the config File ./config.xml :
     <item id="0" name="java.util.ArrayList"/>
   </types>
   <config>
-    <favoriteFoods info="List of favourite foods." type="0">
+    <favoriteFoods info="List of favorite foods." type="0">
       <item type="1" value="Banana"/>
       <item type="1" value="Apple"/>
       <item null="true"/>
