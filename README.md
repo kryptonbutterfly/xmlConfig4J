@@ -22,7 +22,7 @@ Any help with this project is much appreciated.
 ## Example
 
 The class TinyExample:
-```
+```java
 public class TinyExample extends FileConfig
 {
   public TinyExample()
@@ -112,7 +112,7 @@ public class TinyExample extends FileConfig
 ```
 generates the config File ./config.xml :
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root>
   <types>
