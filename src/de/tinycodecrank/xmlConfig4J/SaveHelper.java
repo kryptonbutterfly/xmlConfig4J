@@ -1,6 +1,8 @@
 package de.tinycodecrank.xmlConfig4J;
 
 import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -105,7 +107,17 @@ public final class SaveHelper
 							if(tmp.isAnnotationPresent(Value.class))
 							{
 								Value value = tmp.getAnnotation(Value.class);
-								tmp.setAccessible(true);
+								AccessController.doPrivileged(new PrivilegedAction<Void>()
+								{
+
+									@Override
+									public Void run()
+									{
+										tmp.setAccessible(true);
+										return null;
+									}
+									
+								});
 								Element field = saveObject(tmp.getName(), tmp.get(toSave), document);
 								if(value != null && value.value() != null && !value.value().isEmpty())
 								{

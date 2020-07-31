@@ -114,7 +114,6 @@ public class ArrayParser implements ParserAssignable
 				}
 				else
 				{
-					typeName.charAt(1);
 					array = PRIMITIVES.get(typeName.charAt(1)).apply(length);
 					isPrimitive = true;
 				}

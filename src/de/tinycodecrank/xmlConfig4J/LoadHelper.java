@@ -2,6 +2,8 @@ package de.tinycodecrank.xmlConfig4J;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -76,7 +78,7 @@ public class LoadHelper
 	{
 		if (typeMappings != null && NumberUtils.isParsable(type))
 		{
-			String tmp = typeMappings[Integer.valueOf(type)];
+			String tmp = typeMappings[Integer.parseInt(type)];
 			if (tmp != null)
 			{
 				return tmp;
@@ -108,7 +110,15 @@ public class LoadHelper
 				{
 					objectType = field.getType();
 				}
-				field.setAccessible(true);
+				AccessController.doPrivileged(new PrivilegedAction<Void>()
+				{
+					@Override
+					public Void run()
+					{
+						field.setAccessible(true);
+						return null;
+					}
+				});
 				field.set(config, loadFromNode(objectType, node));
 			}
 			else
@@ -182,7 +192,15 @@ public class LoadHelper
 						{
 							try
 							{
-								varField.setAccessible(true);
+								AccessController.doPrivileged(new PrivilegedAction<Void>()
+								{
+									@Override
+									public Void run()
+									{
+										varField.setAccessible(true);
+										return null;
+									}
+								});
 								Attr		type	= getAttribute(node, TYPE);
 								Class<?>	objectType;
 								if (type != null)
