@@ -77,28 +77,28 @@ public class TinyExample extends FileConfig
       config.load();
       
       System.out.println("List:");
-      config.favoriteFoods.stream().map(s -> "\t" + s).forEach(System.out::println);
+      config.favoriteFoods.stream()
+        .map(s -> "\t" + s)
+        .forEach(System.out::println);
       
-      System.out.println();
-      System.out.println("someNumber:");
-      System.out.println("\t" + config.someNumber);
+      System.out.printf("%nsomeNumber:%n\t%s%n",
+        config.someNumber);
       
-      System.out.println();
-      System.out.println("Pi:");
-      System.out.println("\t" + config.cc.pi);
+      System.out.printf("%nPi:%n\t%s%n",
+          config.cc.pi);
       
-      System.out.println();
-      System.out.println("Map:");
-      config.map.entrySet().stream().map(s -> "\t" + s).forEach(System.out::println);
+      System.out.printf("%nMap:%n");
+      config.map.entrySet().stream()
+        .map(s -> "\t" + s)
+        .forEach(System.out::println);
       
-      System.out.println();
-      System.out.println("Set:");
-      config.set.stream().map(s -> "\t" + s).forEach(System.out::println);
+      System.out.printf("%nSet:%n");
+      config.set.stream()
+        .map(s -> "\t" + s)
+        .forEach(System.out::println);
       
-      System.out.println();
-      System.out.println("Array:");
-      System.out.println(Arrays.deepToString(config.array));
-      
+      System.out.printf("%nArray:%n%s%n",
+        Arrays.deepToString(config.array));
     }
     config.save();
   }
