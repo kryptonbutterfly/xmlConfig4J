@@ -1,4 +1,4 @@
-package xmlConfig4J.example;
+package xmlConfig4J2.example;
 
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 

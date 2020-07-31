@@ -1,19 +1,61 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root>
     <types>
-        <item id="0" name="java.util.HashMap"/>
-        <item id="1" name="java.util.ArrayList"/>
+        <item id="5" name="java.util.HashSet"/>
+        <item id="2" name="java.util.HashMap"/>
+        <item id="0" name="java.lang.String"/>
+        <item id="1" name="[Ljava.lang.String;"/>
+        <item id="3" name="java.lang.Integer"/>
+        <item id="4" name="java.util.ArrayList"/>
     </types>
     <config>
-        <projectName value="xmlConfig4J"/>
+        <projectName value="xmlConfig4J2"/>
         <author info="Description for this field" value="tinycodecrank"/>
-        <comment value="null"/>
-        <someNumber value="1337"/>
+        <comment value="The config has changed!"/>
+        <someNumber value="42"/>
         <custom>
             <foo value="Bar"/>
         </custom>
-        <aMap type="0"/>
-        <aList type="1"/>
-        <dayEnum value="0"/>
+        <empty null="true"/>
+        <color alpha="255" blue="0" green="200" red="255"/>
+        <changeConfig value="true"/>
+        <testArray>
+            <item type="1">
+                <item type="0" value="Hallo, "/>
+                <item type="0" value="Welt!"/>
+            </item>
+            <item type="1">
+                <item type="0" value="Hello, World!&#10;"/>
+            </item>
+            <item null="true"/>
+            <item type="1">
+                <item type="0" value="TestNull"/>
+                <item null="true"/>
+            </item>
+        </testArray>
+        <nullArray null="true"/>
+        <nullString null="true"/>
+        <runCounter value="1"/>
+        <runResult type="2">
+            <item>
+                <key null="true"/>
+                <value null="true"/>
+            </item>
+            <item>
+                <key type="3" value="1"/>
+                <value type="0" value="The program ran 1 times before"/>
+            </item>
+        </runResult>
+        <list type="4">
+            <item type="0" value="element 1"/>
+            <item type="0" value="element 2"/>
+            <item null="true"/>
+        </list>
+        <set type="5">
+            <item null="true"/>
+            <item type="0" value="setElement1"/>
+            <item type="0" value="setElement2"/>
+        </set>
+        <testEnum null="true"/>
     </config>
 </root>
