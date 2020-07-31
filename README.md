@@ -23,12 +23,14 @@ Any help with this project is much appreciated.
 
 The class TinyExample:
 ```java
-public class TinyExample extends FileConfig{
-  public TinyExample(){
-    super(new File("./config.xml"));
+public class TinyExample extends FileConfig
+{
+  public TinyExample()
+  {
+    super(new File("./example.xml"));
   }
   
-  @Value("List of favorite foods.")
+  @Value("List of favourite foods.")
   public ArrayList<String> favoriteFoods = genFavFoods();
   
   @Value
@@ -36,28 +38,73 @@ public class TinyExample extends FileConfig{
   
   @Value
   public CustomClass cc = new CustomClass();
+
+  @Value
+  public HashMap<String, String> map = new HashMap<>();
+  {
+    map.put("A", "a");
+    map.put("B", null);
+    map.put(null, "A");
+  }
   
-  private ArrayList<String> genFavFoods(){
+  @Value
+  public String[][] array = new String[][] {{"Banana", null}, null, {}, {"Apple", "Orange"}};
+  
+  @Value
+  public HashSet<String> set = new HashSet<>();
+  {
+    set.add("A");
+    set.add("B");
+    set.add("C");
+    set.add(null);
+  }
+  
+  private ArrayList<String> genFavFoods()
+  {
     ArrayList<String> list = new ArrayList<>();
     list.add("Banana");
     list.add("Apple");
+    list.add(null);
     list.add("Cheese");
     return list;
   }
   
-  public static void main(String[] args) throws IOException{
+  public static void main(String[] args) throws IOException
+  {
     TinyExample config = new TinyExample();
-    if(!config.exists()){
-      config.save();  //write content of annotated fields to the specified file
-    } else{
-      config.load();  //read from the specified file and sets the annotated fields according
-      config.favoriteFoods.forEach(System.out::println);
-      System.out.println(config.someNumber);
-      System.out.println("PI: " + config.cc.pi);
+    if(config.exists())
+    {
+      config.load();
+      
+      System.out.println("List:");
+      config.favoriteFoods.stream().map(s -> "\t" + s).forEach(System.out::println);
+      
+      System.out.println();
+      System.out.println("someNumber:");
+      System.out.println("\t" + config.someNumber);
+      
+      System.out.println();
+      System.out.println("Pi:");
+      System.out.println("\t" + config.cc.pi);
+      
+      System.out.println();
+      System.out.println("Map:");
+      config.map.entrySet().stream().map(s -> "\t" + s).forEach(System.out::println);
+      
+      System.out.println();
+      System.out.println("Set:");
+      config.set.stream().map(s -> "\t" + s).forEach(System.out::println);
+      
+      System.out.println();
+      System.out.println("Array:");
+      System.out.println(Arrays.deepToString(config.array));
+      
     }
+    config.save();
   }
-
-  public static class CustomClass{
+  
+  public static class CustomClass
+  {
     @Value
     public double pi = Math.PI;
   }
@@ -69,19 +116,55 @@ generates the config File ./config.xml :
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root>
   <types>
-    <item id="0" name="java.util.ArrayList"/>
+    <item id="4" name="java.util.HashSet"/>
+    <item id="2" name="java.util.HashMap"/>
     <item id="1" name="java.lang.String"/>
+    <item id="3" name="[Ljava.lang.String;"/>
+    <item id="0" name="java.util.ArrayList"/>
   </types>
   <config>
     <favoriteFoods info="List of favourite foods." type="0">
       <item type="1" value="Banana"/>
       <item type="1" value="Apple"/>
+      <item null="true"/>
       <item type="1" value="Cheese"/>
     </favoriteFoods>
     <someNumber value="1337"/>
     <cc>
       <pi value="3.141592653589793"/>
     </cc>
+    <map type="2">
+      <item>
+        <key null="true"/>
+        <value type="1" value="A"/>
+      </item>
+      <item>
+        <key type="1" value="A"/>
+        <value type="1" value="a"/>
+      </item>
+      <item>
+        <key type="1" value="B"/>
+        <value null="true"/>
+      </item>
+    </map>
+    <array>
+      <item type="3">
+        <item type="1" value="Banana"/>
+        <item null="true"/>
+      </item>
+      <item null="true"/>
+      <item type="3"/>
+      <item type="3">
+        <item type="1" value="Apple"/>
+        <item type="1" value="Orange"/>
+      </item>
+    </array>
+    <set type="4">
+      <item null="true"/>
+      <item type="1" value="A"/>
+      <item type="1" value="B"/>
+      <item type="1" value="C"/>
+    </set>
   </config>
 </root>
 ```
