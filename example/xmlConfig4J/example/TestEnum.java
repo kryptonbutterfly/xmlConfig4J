@@ -1,4 +1,4 @@
-package xmlConfig4J2.example;
+package xmlConfig4J.example;
 
 public enum TestEnum
 {
