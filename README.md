@@ -3,7 +3,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 ## Download
 
-[**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v1.0.1/xmlConfig4J.jar)
+[**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.0/xmlConfig4J.jar)
 
 ## Dependencies
 [apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
