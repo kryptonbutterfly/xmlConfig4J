@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import javax.xml.transform.stream.StreamResult;
 
-public abstract class StreamConfig extends AConfig
+public class StreamConfig extends AConfig
 {
 	public StreamConfig()
 	{

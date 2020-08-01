@@ -1,27 +1,27 @@
 package xmlConfig4J.example;
 
+import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import de.tinycodecrank.xmlConfig4J.FileConfig;
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 
 public class Example extends FileConfig
 {
-	private static final Logger log = LogManager.getLogger(Example.class);
-	
 	public Example()
 	{
 		super(new File("./example/config.xml"));
+		addParser(new ColorParser());
 	}
 	
 	@Value
-	public String projectName = "xmlConfig4J";
+	public String projectName = "xmlConfig4J2";
 	
 	@Value("Description for this field")
 	public String author = "tinycodecrank";
@@ -36,65 +36,84 @@ public class Example extends FileConfig
 	public CustomClass custom = new CustomClass();
 	
 	@Value
-	public HashMap<String, Double> aMap = new HashMap<>();
+	public CustomClass empty = null;
 	
 	@Value
-	public ArrayList<CustomClass> aList = new ArrayList<>();
-	
-	@Value
-	public Day dayEnum = Day.MONDAY;
-	
+	public Color color = Color.ORANGE;
+
 	@Value
 	public boolean changeConfig = false;
 	
-
-	public static void main(String[] args)
-	{
-		Example config = new Example();
-		
-		if(config.exists())
-		{
-			try
-			{
-				config.load();
-				config.printConfigContent();
-				if(config.changeConfig)
-				{
-					config.changeValues();
-					config.save();
-				}
-				else
-				{
-					System.out.println("Not Writing Stuff");
-				}
-			}
-			catch (IOException e)
-			{
-				log.error(e.getMessage(), e);
-			}
-		}
-		else
-		{
-			config.save();
-		}
-	}
+	@Value
+	public String[][] testArray = {{"Hallo, ", "Welt!"}, {"Hello, World!\n"}, null, {"TestNull", null}};
 	
-	private void printConfigContent()
+	@Value
+	public String[] nullArray = null;
+	
+	@Value
+	public String nullString = null;
+	
+	@Value
+	public int runCounter = 0;
+	
+	@Value
+	public HashMap<Integer, String> runResult = new HashMap<>();
+	
+	@Value
+	public List<String> list = new ArrayList<>();
+	
+	@Value
+	public Set<String> set = new HashSet<>();
+	
+	@Value
+	public TestEnum testEnum = null;
+
+	public void printConfigContent()
 	{
 		System.out.printf("Projectname:\t%s%n", projectName);
 		System.out.printf("Author:\t%s%n", author);
 		System.out.printf("Comment:\t%s%n", comment);
 		System.out.printf("Some Number:\t%d%n", someNumber);
 		System.out.printf("Custom:\t%s%n", custom);
-		System.out.printf("Day.\t%s%n", dayEnum.name());
+		System.out.printf("Empty:\t%s%n", empty);
+		System.out.printf("Color:\t%s%n", color);
+		System.out.printf("%nTest-Array:\t%s%n", Arrays.deepToString(testArray));
+		System.out.printf("%nNull-Array:\t%s%n", Arrays.toString(nullArray));
+		System.out.printf("%nNull-String:\t%s%n", nullString);
+		System.out.printf("Change config:\t%s%n", changeConfig);
+		System.out.printf("RunCounter:\t%s%n", runCounter);
+		
+		System.out.printf("%nMap\t:%n");
+		printMap();
+		System.out.printf("%nList\t:%n");
+		printList();
+		System.out.printf("%nSet\t:%n");
+		printSet();
+		
+		System.out.printf("Test-Enum:\t%s%n", testEnum);
 	}
 	
-	private void changeValues()
+	public void changeValues()
 	{
-		dayEnum = Day.FRIDAY;
 		comment = "The config has changed!";
 		someNumber = 42;
-		aMap.put("42", 42.0);
-		aMap.put("pi", Math.PI);
+		
+		runCounter++;
+		runResult.put(runCounter, "The program ran " + runCounter + " times before");
+	}
+	
+	public void printMap()
+	{
+		runResult.forEach((i, s) -> System.out.printf("\t %s - %s%n", i, s));
+	}
+	
+	public void printList()
+	{
+		list.forEach(s -> System.out.printf("\t %s%n", s));
+	}
+	
+	public void printSet()
+	{
+		set.forEach(s -> System.out.printf("\t %s%n", s));
 	}
 }

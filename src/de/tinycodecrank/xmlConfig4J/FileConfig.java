@@ -12,12 +12,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class FileConfig extends AConfig
+public class FileConfig extends AConfig
 {
 	private static final Logger log = LogManager.getLogger(FileConfig.class);
 	
 	protected File configFile;
-
+	
 	public FileConfig(File config)
 	{
 		configFile = config;
@@ -39,28 +39,28 @@ public abstract class FileConfig extends AConfig
 	
 	public void save()
 	{
-		if (!configFile.getParentFile().exists())
+		if(!configFile.getParentFile().exists())
 		{
-			if (!configFile.getParentFile().mkdirs())
+			if(!configFile.getParentFile().mkdirs())
 			{
-				log.warn(String.format("Failed to create config Folder: %s", configFile.getAbsoluteFile()));
+				log.warn("Failed to create config Folder: %s", configFile.getAbsoluteFile());
 			}
 		}
-
+		
 		try(FileOutputStream fOStream = new FileOutputStream(configFile))
 		{
 			FileLock lock = fOStream.getChannel().lock();
 			StreamResult output = new StreamResult(fOStream);
-
+			
 			save(output);
-	
+			
 			fOStream.flush();
 			lock.release();
 			fOStream.close();
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
-			log.error(e.getMessage(), e);
+			log.error(e::getMessage, e);
 		}
 	}
 }
