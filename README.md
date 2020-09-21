@@ -3,7 +3,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 ## Download
 
-[**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.0/xmlConfig4J.jar)
+[**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.1/xmlConfig4J.jar)
 
 ## Dependencies
 [apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
@@ -22,12 +22,13 @@ Any help with this project is much appreciated.
 ## Example
 
 The class TinyExample:
+
 ```java
 public class TinyExample extends FileConfig
 {
   public TinyExample()
   {
-    super(new File("./example.xml"));
+    super(new File("./config.xml"));
   }
   
   @Value("List of favorite foods.")
@@ -77,28 +78,19 @@ public class TinyExample extends FileConfig
       config.load();
       
       System.out.println("List:");
-      config.favoriteFoods.stream()
-        .map(s -> "\t" + s)
-        .forEach(System.out::println);
+      config.favoriteFoods.stream().map(s -> "\t" + s).forEach(System.out::println);
       
-      System.out.printf("%nsomeNumber:%n\t%s%n",
-        config.someNumber);
+      System.out.printf("%nsomeNumber:%n\t%s%n", config.someNumber);
       
-      System.out.printf("%nPi:%n\t%s%n",
-          config.cc.pi);
+      System.out.printf("%nPi:%n\t%s%n", config.cc.pi);
       
       System.out.printf("%nMap:%n");
-      config.map.entrySet().stream()
-        .map(s -> "\t" + s)
-        .forEach(System.out::println);
+      config.map.entrySet().stream().map(s -> "\t" + s).forEach(System.out::println);
       
       System.out.printf("%nSet:%n");
-      config.set.stream()
-        .map(s -> "\t" + s)
-        .forEach(System.out::println);
+      config.set.stream().map(s -> "\t" + s).forEach(System.out::println);
       
-      System.out.printf("%nArray:%n%s%n",
-        Arrays.deepToString(config.array));
+      System.out.printf("%nArray:%n%s%n", Arrays.deepToString(config.array));
     }
     config.save();
   }
