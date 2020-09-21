@@ -90,6 +90,7 @@ public class LoadHelper
 	{
 		try
 		{
+			PrivAction.doPrivileged(() -> field.setAccessible(true));
 			if(loadIsNotNull(node, this))
 			{
 				Attr		type		= getAttribute(node, TYPE);
@@ -109,7 +110,6 @@ public class LoadHelper
 				{
 					objectType = field.getType();
 				}
-				PrivAction.doPrivileged(() -> field.setAccessible(true));
 				field.set(config, loadFromNode(objectType, node));
 			}
 			else
