@@ -30,6 +30,126 @@ public final class Accessor<E extends AccessibleObject & Member>
 		}
 	}
 	
+	public void perform(AccessBoolConsumer<E, Object> action, boolean value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessByteConsumer<E, Object> action, byte value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessShortConsumer<E, Object> action, short value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessCharConsumer<E, Object> action, char value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessIntConsumer<E, Object> action, int value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessLongConsumer<E, Object> action, long value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessFloatConsumer<E, Object> action, float value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
+	public void perform(AccessDoubleConsumer<E, Object> action, double value)
+		throws IllegalArgumentException,
+		IllegalAccessException
+	{
+		final boolean isAccessible = makeAccessible();
+		try
+		{
+			action.accept(element, parent, value);
+		}
+		finally
+		{
+			revertAccess(isAccessible);
+		}
+	}
+	
 	public <Return> Return perform(AccessSupplier<E, Object, Return> action)
 		throws IllegalArgumentException,
 		IllegalAccessException
@@ -62,14 +182,62 @@ public final class Accessor<E extends AccessibleObject & Member>
 	}
 	
 	@FunctionalInterface
-	public static interface AccessConsumer<Parent, AccObj, Value>
+	public static interface AccessConsumer<AccObj, Parent, Value>
 	{
-		void accept(Parent a, AccObj b, Value v) throws IllegalArgumentException, IllegalAccessException;
+		void accept(AccObj obj, Parent parent, Value value) throws IllegalArgumentException, IllegalAccessException;
 	}
 	
 	@FunctionalInterface
-	public static interface AccessSupplier<Parent, AccObj, Return>
+	public static interface AccessBoolConsumer<AccObj, Parent>
 	{
-		Return get(Parent a, AccObj b) throws IllegalArgumentException, IllegalAccessException;
+		void accept(AccObj obj, Parent parent, boolean value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessByteConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, byte value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessShortConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, short value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessCharConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, char value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessIntConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, int value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessLongConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, long value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessFloatConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, float value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessDoubleConsumer<AccObj, Parent>
+	{
+		void accept(AccObj obj, Parent parent, double value) throws IllegalArgumentException, IllegalAccessException;
+	}
+	
+	@FunctionalInterface
+	public static interface AccessSupplier<AccObj, Parent, Return>
+	{
+		Return get(AccObj obj, Parent parent) throws IllegalArgumentException, IllegalAccessException;
 	}
 }

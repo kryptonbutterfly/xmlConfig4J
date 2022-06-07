@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import de.tinycodecrank.xmlConfig4J.Accessor;
 import de.tinycodecrank.xmlConfig4J.LoadHelper;
 import de.tinycodecrank.xmlConfig4J.SaveHelper;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
@@ -33,7 +34,7 @@ public final class ShortParser implements Parser
 		IllegalAccessException
 	{
 		final var val = getAttribute(node, VALUE);
-		field.setShort(parent, Short.parseShort(val.getValue()));
+		new Accessor<>(parent, field).perform(Field::setShort, Short.parseShort(val.getValue()));
 	}
 	
 	@Override
