@@ -3,12 +3,19 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 ## Download
 
-[**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
+java version | library version | Download
+:----------: | :-------------: | --------
+18+          | 2.0.5           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.5/xmlConfig4J.jar)
+8+           | 2.0.4           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
 
 ## Dependencies
-[apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
 
-[apache / **logging-log4j2**](https://logging.apache.org/log4j/2.x/download.html)
+#### version 2.0.5 & above
+–
+
+#### version < 2.0.5
+* [apache / **commons-lang**](https://commons.apache.org/proper/commons-lang/download_lang.cgi)
+* [apache / **logging-log4j2**](https://logging.apache.org/log4j/2.x/download.html)
 
 ## License
 
