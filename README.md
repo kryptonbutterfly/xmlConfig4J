@@ -5,7 +5,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 java version | library version | Download
 :----------: | :-------------: | --------
-18+          | 2.0.6           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.6/xmlConfig4J.jar)
+18+          | 2.0.7           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.7/xmlConfig4J.jar)
 8+           | 2.0.4           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
 
 ## Dependencies
@@ -24,7 +24,7 @@ This project is licensed under Apache License 2.0 - see the [LICENSE](https://gi
 ## Contributing
 
 Please do contribute!  
-Any help with this project is much appreciated.
+Any help with this project is greatly appreciated.
 
 ## Example
 
