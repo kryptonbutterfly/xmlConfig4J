@@ -13,7 +13,7 @@ public class FileConfig extends AConfig
 	
 	public FileConfig(File config)
 	{
-		configFile = config;
+		configFile = config.getAbsoluteFile();
 	}
 	
 	public boolean exists()
