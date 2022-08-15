@@ -9,7 +9,7 @@
 		<repository>
 			<id>github_xml_config_4j</id>
 			<name>GitHub tinycodecrank Apache Maven Packages</name>
-			<url>https://mave.pkg.github.com/tinycodecrank/xmlConfig4J</url>
+			<url>https://maven.pkg.github.com/tinycodecrank/xmlConfig4J</url>
 		</repository>
 	</distributionManagement>
 	
