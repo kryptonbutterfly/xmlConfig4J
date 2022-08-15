@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import de.tinycodecrank.xmlConfig4J.Accessor;
+import de.tinycodecrank.reflectionUtils.Accessor;
 import de.tinycodecrank.xmlConfig4J.LoadHelper;
 import de.tinycodecrank.xmlConfig4J.SaveHelper;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
@@ -34,7 +34,7 @@ public final class LongParser implements Parser
 		IllegalAccessException
 	{
 		final var val = getAttribute(node, VALUE);
-		new Accessor<>(parent, field).perform(Field::setLong, Long.parseLong(val.getValue()));
+		new Accessor<>(parent, field).applyLong(Field::setLong, Long.parseLong(val.getValue()));
 	}
 	
 	@Override

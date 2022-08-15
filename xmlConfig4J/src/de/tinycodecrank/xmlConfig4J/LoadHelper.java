@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import org.w3c.dom.Node;
 
+import de.tinycodecrank.reflectionUtils.Accessor;
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
 import de.tinycodecrank.xmlConfig4J.parser.assignable.ParserAssignable;
@@ -103,11 +104,11 @@ public class LoadHelper
 				{
 					objectType = field.getType();
 				}
-				fieldAccess.perform(Field::set, loadFromNode(objectType, node));
+				fieldAccess.applyObj(Field::set, loadFromNode(objectType, node));
 			}
 			else
 			{
-				fieldAccess.perform(Field::set, null);
+				fieldAccess.applyObj(Field::set, null);
 			}
 		}
 		catch (
@@ -197,17 +198,17 @@ public class LoadHelper
 									final var	parserA		= getParser.apply(objectType);
 									if (parserA != null)
 									{
-										fieldAccess.perform(Field::set, parserA.load(objectType, node, this));
+										fieldAccess.applyObj(Field::set, parserA.load(objectType, node, this));
 									}
 									else
 									{
 										if (loadIsNotNull(node, this))
 										{
-											fieldAccess.perform(Field::set, loadAsAnnotated(objectType, node));
+											fieldAccess.applyObj(Field::set, loadAsAnnotated(objectType, node));
 										}
 										else
 										{
-											fieldAccess.perform(Field::set, null);
+											fieldAccess.applyObj(Field::set, null);
 										}
 									}
 								}

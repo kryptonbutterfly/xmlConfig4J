@@ -9,4 +9,5 @@ module de.tinycodecrank.xmlConfig4J
 	exports de.tinycodecrank.xmlConfig4J.parser.wrapping;
 	
 	requires transitive java.xml;
+	requires de.tinycodecrank.ReflectionUtils;
 }

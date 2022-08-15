@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import de.tinycodecrank.reflectionUtils.Accessor;
 import de.tinycodecrank.xmlConfig4J.annotations.Value;
 import de.tinycodecrank.xmlConfig4J.parser.Parser;
 import de.tinycodecrank.xmlConfig4J.parser.assignable.ParserAssignable;

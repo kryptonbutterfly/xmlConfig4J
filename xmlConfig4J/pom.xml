@@ -19,7 +19,24 @@
 		<java.version>18</java.version>
 	</properties>
 	
-	<dependencies></dependencies>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/tinycodecrank/package_registry</url>
+		</repository>
+		<repository>
+			<id>github_reflection_utils</id>
+			<url>https://maven.pkg.github.com/tinycodecrank/ReflectionUtils</url>
+		</repository>
+	</repositories>
+	
+	<dependencies>
+		<dependency>
+			<groupId>de.tinycodecrank</groupId>
+			<artifactId>reflection_utils</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
 	
 	<build>
 		<sourceDirectory>src</sourceDirectory>
