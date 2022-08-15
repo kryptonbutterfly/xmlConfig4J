@@ -12,7 +12,7 @@ java version | library version | Download
 ## Dependencies
 
 #### version 2.1.0 & above
-* [**ReferenceUtils.jar**](https://github-registry-files.githubusercontent.com/524979859/4111ed80-1cac-11ed-9d2b-cce4861355f1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20220815%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220815T192901Z&X-Amz-Expires=300&X-Amz-Signature=9674b2c5ef7aedd98c17c30e489e7e8db6ab18de0e662611798fbb8f87cee779&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=524979859&response-content-disposition=filename%3Dreflection_utils-1.0.0.jar&response-content-type=application%2Foctet-stream)
+* [**ReflectionUtils.jar**](https://github.com/tinycodecrank/ReflectionUtils/releases/download/v1.0.0/ReflectionUtils.jar)
 
 #### version 2.0.5 - 2.0.7
 –
