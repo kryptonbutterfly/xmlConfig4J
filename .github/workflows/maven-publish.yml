@@ -28,7 +28,7 @@ jobs:
     - name: Build with Maven
       env:
         GITHUB_TOKEN: ${{ secrets.PACKAGE_ACCESS_XML_CONFIG_4J }}
-      run: mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file pom.xml
+      run: mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file xmlConfig4J/pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
