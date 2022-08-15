@@ -22,7 +22,7 @@
 	<repositories>
 		<repository>
 			<id>github</id>
-			<url>https://maven.pkg.github.com/tinycodecrank/package_registry</url>
+			<url>https://maven.pkg.github.com/tinycodecrank/reflection_utils</url>
 		</repository>
 		<repository>
 			<id>github_reflection_utils</id>
