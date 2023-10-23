@@ -240,7 +240,8 @@ public class AConfig
 	private final void loadConfigObject(LoadHelper loadHelper, Node config) throws ClassNotFoundException
 	{
 		Class<?> oExtClass = this.getClass();
-		do
+		
+		while (oExtClass != null && oExtClass != Object.class)
 		{
 			for (final var field : oExtClass.getDeclaredFields())
 			{
@@ -258,8 +259,8 @@ public class AConfig
 					}
 				}
 			}
+			oExtClass = oExtClass.getSuperclass();
 		}
-		while ((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 	}
 	
 	final void save(StreamResult output)

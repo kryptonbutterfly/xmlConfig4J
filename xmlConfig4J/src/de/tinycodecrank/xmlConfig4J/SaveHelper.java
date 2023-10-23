@@ -100,7 +100,7 @@ public final class SaveHelper
 				}
 				else
 				{
-					do
+					while (tmpClass != null && tmpClass != Object.class)
 					{
 						for (final var tmp : tmpClass.getDeclaredFields())
 						{
@@ -119,8 +119,8 @@ public final class SaveHelper
 								element.appendChild(field);
 							}
 						}
+						tmpClass = tmpClass.getSuperclass();
 					}
-					while ((tmpClass = tmpClass.getSuperclass()) != null && tmpClass != Object.class);
 				}
 			}
 		}

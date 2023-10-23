@@ -162,7 +162,7 @@ public class LoadHelper
 	{
 		final var parentObject = oExtClass.getDeclaredConstructor().newInstance();
 		oExtClass = parentObject.getClass();
-		do
+		while (oExtClass != null && oExtClass != Object.class)
 		{
 			for (final var varField : oExtClass.getDeclaredFields())
 			{
@@ -230,8 +230,8 @@ public class LoadHelper
 					}
 				}
 			}
+			oExtClass = oExtClass.getSuperclass();
 		}
-		while ((oExtClass = oExtClass.getSuperclass()) != null && oExtClass != Object.class);
 		return parentObject;
 	}
 }
