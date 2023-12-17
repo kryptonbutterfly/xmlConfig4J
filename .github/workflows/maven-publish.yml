@@ -42,6 +42,7 @@ jobs:
       run: mvn -B package -s $GITHUB_WORKSPACE/settings.xml --file xmlConfig4J/pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      working-directory: ./xmlConfig4J
       env:
         GITHUB_TOKEN: ${{ secrets.MAVEN_REGISTRY_TOKEN }}
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
