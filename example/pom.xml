@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.tinycodecrank</groupId>
-	<artifactId>xml_config_4j</artifactId>
-	<version>2.2.0</version>
-	<name>xml_config_4j</name>
-	
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.tinycodecrank</groupId>
+  <artifactId>xm-config4j-example</artifactId>
+  <version>1.0.0</version>
+  <name>xmlConfig4J Example</name>
+  
 	<distributionManagement>
 		<repository>
 			<id>github</id>
@@ -29,21 +29,21 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.tinycodecrank</groupId>
-			<artifactId>reflection_utils</artifactId>
-			<version>1.0.0</version>
+			<artifactId>xml_config_4j</artifactId>
+			<version>2.2.0</version>
 		</dependency>
 	</dependencies>
-	
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
-				<configuration>
-					<release>18</release>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+  
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>18</release>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

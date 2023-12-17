@@ -1,17 +1,38 @@
 # xmlConfig4J
+
 A Simple to use Library for Object de-/serialization to xml-Format
+
+## Getting the latest release
+
+```xml
+<repository>
+  <id>github</id>
+  <url>https://maven.pkg.github.com/tinycodecrank/maven-repo</url>
+</repository>
+```
+```xml
+<dependency>
+  <groupId>de.tinycodecrank</groupId>
+  <artifactId>xml_config_4j<artifactId>
+  <version>2.2.0</version>
+</dependency>
+```
 
 ## Download
 
 java version | library version | Download
 :----------: | :-------------: | --------
+18+          | 2.2.0           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.2.0/xmlConfig4J.jar)
 18+          | 2.1.0           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.1.0/xmlConfig4J.jar)
 18+          | 2.0.7           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.7/xmlConfig4J.jar)
 8+           | 2.0.4           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
 
 ## Dependencies
 
-#### version 2.1.0 & above
+#### version > 2.1.0
+* use maven
+
+#### version 2.1.0
 * [**ReflectionUtils.jar**](https://github.com/tinycodecrank/ReflectionUtils/releases/download/v1.0.0/ReflectionUtils.jar)
 
 #### version 2.0.5 - 2.0.7
@@ -27,7 +48,7 @@ This project is licensed under Apache License 2.0 - see the [LICENSE](https://gi
 
 ## Contributing
 
-Please do contribute!  
+Please do contribute!
 Any help with this project is greatly appreciated.
 
 ## Example
