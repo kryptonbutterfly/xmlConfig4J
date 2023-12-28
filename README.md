@@ -1,4 +1,4 @@
-# xmlConfig4J
+# xmlConfig4J [![Maven Package](https://github.com/tinycodecrank/xmlConfig4J/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/tinycodecrank/xmlConfig4J/actions/workflows/maven-publish.yml)
 
 A Simple to use Library for Object de-/serialization to xml-Format
 
