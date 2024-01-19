@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.tinycodecrank.xmlConfig4J.FileConfig;
-import de.tinycodecrank.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.FileConfig;
+import kryptonbutterfly.xmlConfig4J.annotations.Value;
 
 public class Example extends FileConfig
 {
@@ -23,7 +23,7 @@ public class Example extends FileConfig
 	public String projectName = "xmlConfig4J2";
 	
 	@Value("Description for this field")
-	public String author = "tinycodecrank";
+	public String author = "kryptonbutterfly";
 	
 	@Value
 	public String comment = "null";

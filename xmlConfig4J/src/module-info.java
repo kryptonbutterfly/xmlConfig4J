@@ -1,13 +1,13 @@
-module de.tinycodecrank.xmlConfig4J
+module kryptonbutterfly.xmlConfig4J
 {
-	exports de.tinycodecrank.xmlConfig4J.parser;
-	exports de.tinycodecrank.xmlConfig4J.utils;
-	exports de.tinycodecrank.xmlConfig4J;
-	exports de.tinycodecrank.xmlConfig4J.parser.primitiv;
-	exports de.tinycodecrank.xmlConfig4J.parser.assignable;
-	exports de.tinycodecrank.xmlConfig4J.annotations;
-	exports de.tinycodecrank.xmlConfig4J.parser.wrapping;
+	exports kryptonbutterfly.xmlConfig4J.parser;
+	exports kryptonbutterfly.xmlConfig4J.utils;
+	exports kryptonbutterfly.xmlConfig4J;
+	exports kryptonbutterfly.xmlConfig4J.parser.primitiv;
+	exports kryptonbutterfly.xmlConfig4J.parser.assignable;
+	exports kryptonbutterfly.xmlConfig4J.annotations;
+	exports kryptonbutterfly.xmlConfig4J.parser.wrapping;
 	
 	requires transitive java.xml;
-	requires de.tinycodecrank.ReflectionUtils;
+	requires kryptonbutterfly.ReflectionUtils;
 }

@@ -4,7 +4,7 @@ package example;
  * This is just a mock class so i don't have to require the java.awt module just
  * for the example
  * 
- * @author tinycodecrank
+ * @author kryptonbutterfly
  */
 public class Color
 {

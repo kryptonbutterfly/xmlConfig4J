@@ -10,7 +10,7 @@
     </types>
     <config>
         <projectName value="xmlConfig4J2"/>
-        <author info="Description for this field" value="tinycodecrank"/>
+        <author info="Description for this field" value="kryptonbutterfly"/>
         <comment value="The config has changed!"/>
         <someNumber value="42"/>
         <custom>

@@ -1,6 +1,6 @@
-module xmlConfig4J.Example
+module kryptonbutterfly.xmlConfig4J.Example
 {
-	exports example to de.tinycodecrank.ReflectionUtils, de.tinycodecrank.xmlConfig4J;
+	exports example to kryptonbutterfly.ReflectionUtils, kryptonbutterfly.xmlConfig4J;
 	
-	requires transitive de.tinycodecrank.xmlConfig4J;
+	requires transitive kryptonbutterfly.xmlConfig4J;
 }

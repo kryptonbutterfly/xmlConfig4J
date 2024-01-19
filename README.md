@@ -1,4 +1,4 @@
-# xmlConfig4J [![Maven Package](https://github.com/tinycodecrank/xmlConfig4J/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/tinycodecrank/xmlConfig4J/actions/workflows/maven-publish.yml)
+# xmlConfig4J [![Maven Package](https://github.com/kryptonbutterfly/xmlConfig4J/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/kryptonbutterfly/xmlConfig4J/actions/workflows/maven-publish.yml)
 
 A Simple to use Library for Object de-/serialization to xml-Format
 
@@ -7,7 +7,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
 ```xml
 <repository>
   <id>github</id>
-  <url>https://maven.pkg.github.com/tinycodecrank/maven-repo</url>
+  <url>https://maven.pkg.github.com/kryptonbutterfly/maven-repo</url>
 </repository>
 ```
 ```xml
@@ -22,10 +22,10 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 java version | library version | Download
 :----------: | :-------------: | --------
-18+          | 2.2.0           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.2.0/xmlConfig4J.jar)
-18+          | 2.1.0           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.1.0/xmlConfig4J.jar)
-18+          | 2.0.7           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.7/xmlConfig4J.jar)
-8+           | 2.0.4           | [**xmlConfig4J.jar**](https://github.com/tinycodecrank/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
+18+          | 2.2.0           | [**xmlConfig4J.jar**](https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.2.0/xmlConfig4J.jar)
+18+          | 2.1.0           | [**xmlConfig4J.jar**](https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.1.0/xmlConfig4J.jar)
+18+          | 2.0.7           | [**xmlConfig4J.jar**](https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.0.7/xmlConfig4J.jar)
+8+           | 2.0.4           | [**xmlConfig4J.jar**](https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar)
 
 ## Dependencies
 
@@ -33,7 +33,7 @@ java version | library version | Download
 * use maven
 
 #### version 2.1.0
-* [**ReflectionUtils.jar**](https://github.com/tinycodecrank/ReflectionUtils/releases/download/v1.0.0/ReflectionUtils.jar)
+* [**ReflectionUtils.jar**](https://github.com/kryptonbutterfly/ReflectionUtils/releases/download/v1.0.0/ReflectionUtils.jar)
 
 #### version 2.0.5 - 2.0.7
 –
@@ -44,7 +44,7 @@ java version | library version | Download
 
 ## License
 
-This project is licensed under Apache License 2.0 - see the [LICENSE](https://github.com/tinycodecrank/xmlConfig4J/blob/master/LICENSE) file for details
+This project is licensed under Apache License 2.0 - see the [LICENSE](https://github.com/kryptonbutterfly/xmlConfig4J/blob/master/LICENSE) file for details
 
 ## Contributing
 
