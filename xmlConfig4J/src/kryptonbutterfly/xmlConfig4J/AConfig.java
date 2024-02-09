@@ -6,9 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Objects;
+import java.util.function.Function;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -67,8 +72,22 @@ public class AConfig
 	
 	private boolean mapTypes = true;
 	
+	private final Function<Field, ? extends Annotation> includeFieldAnnotation;
+	
 	public AConfig()
 	{
+		this(Value.class);
+	}
+	
+	@SafeVarargs
+	public AConfig(Class<? extends Annotation>... fieldIncludeMarker)
+	{
+		this.includeFieldAnnotation = field -> Arrays.stream(fieldIncludeMarker)
+			.map(field::getAnnotation)
+			.filter(Objects::nonNull)
+			.findAny()
+			.orElseGet(() -> null);
+		
 		addParser(new BooleanParser());
 		addParser(new BooleanObjectParser());
 		
@@ -157,7 +176,8 @@ public class AConfig
 					parserMap,
 					typeMappings,
 					classNameHistory,
-					this::getAssignableParser);
+					this::getAssignableParser,
+					this.includeFieldAnnotation);
 				for (int i = 0; i < nodes.getLength(); i++)
 				{
 					final var node = nodes.item(i);
@@ -245,7 +265,7 @@ public class AConfig
 		{
 			for (final var field : oExtClass.getDeclaredFields())
 			{
-				if (field.isAnnotationPresent(Value.class))
+				if (this.includeFieldAnnotation.apply(field) != null)
 				{
 					final var nodeList = config.getChildNodes();
 					for (int i = 0; i < nodeList.getLength(); i++)
@@ -267,7 +287,11 @@ public class AConfig
 	{
 		try
 		{
-			final var	saveHelper	= new SaveHelper(parserMap, this.mapTypes, this::getAssignableParser);
+			final var	saveHelper	= new SaveHelper(
+				parserMap,
+				this.mapTypes,
+				this::getAssignableParser,
+				this.includeFieldAnnotation);
 			final var	factory		= DocumentBuilderFactory.newInstance();
 			final var	parser		= factory.newDocumentBuilder();
 			final var	document	= parser.newDocument();

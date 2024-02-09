@@ -4,12 +4,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 
 import javax.xml.transform.stream.StreamResult;
 
 public class FileConfig extends AConfig
 {
 	protected File configFile;
+	
+	@SafeVarargs
+	public FileConfig(File config, Class<? extends Annotation>... includeFieldMarker)
+	{
+		super(includeFieldMarker);
+		this.configFile = config.getAbsoluteFile();
+	}
 	
 	public FileConfig(File config)
 	{

@@ -2,6 +2,7 @@ package kryptonbutterfly.xmlConfig4J;
 
 import static kryptonbutterfly.xmlConfig4J.utils.Utils.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -10,7 +11,6 @@ import java.util.function.Function;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.reflectionUtils.Accessor;
-import kryptonbutterfly.xmlConfig4J.annotations.Value;
 import kryptonbutterfly.xmlConfig4J.parser.Parser;
 import kryptonbutterfly.xmlConfig4J.parser.assignable.ParserAssignable;
 import kryptonbutterfly.xmlConfig4J.utils.Utils;
@@ -34,16 +34,20 @@ public class LoadHelper
 	
 	private final Function<Class<?>, ParserAssignable> getParser;
 	
+	private final Function<Field, ? extends Annotation> includeFieldAnnotation;
+	
 	LoadHelper(
 		HashMap<String, Parser> parser,
 		String[] typeMappings,
 		HashMap<String, Class<?>> history,
-		Function<Class<?>, ParserAssignable> getParser)
+		Function<Class<?>, ParserAssignable> getParser,
+		Function<Field, ? extends Annotation> includeFieldAnnotation)
 	{
-		this.parser				= parser;
-		this.typeMappings		= typeMappings;
-		this.classNameHistory	= history;
-		this.getParser			= getParser;
+		this.parser					= parser;
+		this.typeMappings			= typeMappings;
+		this.classNameHistory		= history;
+		this.getParser				= getParser;
+		this.includeFieldAnnotation	= includeFieldAnnotation;
 	}
 	
 	public final Class<?> getClass(String type) throws ClassNotFoundException
@@ -166,7 +170,7 @@ public class LoadHelper
 		{
 			for (final var varField : oExtClass.getDeclaredFields())
 			{
-				if (varField.isAnnotationPresent(Value.class))
+				if (includeFieldAnnotation.apply(varField) != null)
 				{
 					final var nodeList = parent.getChildNodes();
 					for (int i = 0; i < nodeList.getLength(); i++)
