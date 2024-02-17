@@ -14,6 +14,9 @@ public class StreamConfig extends AConfig
 		super(includeFieldMarker);
 	}
 	
+	public StreamConfig()
+	{}
+	
 	public void load(InputStream iStream) throws IOException
 	{
 		loadPrepared(prepareInput(iStream));
