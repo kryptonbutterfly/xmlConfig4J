@@ -33,7 +33,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
   </tr>
   <tr>
     <td align="center">18+</td>
-    <td>3.1.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img width="28" src="./md/exclamation_mark.svg" title="DEPRECATED: Don't use this version, use v3.2.0 instead!"/></td>
+    <td>3.1.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/tag/v3.2.0"><img width="28" src="./md/exclamation_mark.svg" title="DEPRECATED: Don't use this version, use v3.2.0 instead!"/></a></td>
     <td align="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v3.1.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
   </tr>
   <tr>
