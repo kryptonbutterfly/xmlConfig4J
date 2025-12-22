@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xm-config4j-example</artifactId>
-  <version>2.1.0</version>
+  <version>3.0.0</version>
   <name>xmlConfig4J Example</name>
   
 	<distributionManagement>
@@ -16,7 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>18</java.version>
+		<java.version>21</java.version>
 	</properties>
 	
 	<repositories>
@@ -30,7 +30,13 @@
 		<dependency>
 			<groupId>kryptonbutterfly</groupId>
 			<artifactId>xml_config_4j</artifactId>
-			<version>3.1.0</version>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.10.1</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
   
@@ -41,7 +47,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <release>18</release>
+          <release>${java.version}</release>
         </configuration>
       </plugin>
     </plugins>

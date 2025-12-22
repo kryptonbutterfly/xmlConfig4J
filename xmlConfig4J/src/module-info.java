@@ -1,13 +1,16 @@
 module kryptonbutterfly.xmlConfig4J
 {
-	exports kryptonbutterfly.xmlConfig4J.parser;
-	exports kryptonbutterfly.xmlConfig4J.utils;
 	exports kryptonbutterfly.xmlConfig4J;
-	exports kryptonbutterfly.xmlConfig4J.parser.primitiv;
-	exports kryptonbutterfly.xmlConfig4J.parser.assignable;
 	exports kryptonbutterfly.xmlConfig4J.annotations;
-	exports kryptonbutterfly.xmlConfig4J.parser.wrapping;
+	exports kryptonbutterfly.xmlConfig4J.exceptions;
+	exports kryptonbutterfly.xmlConfig4J.adapter;
+	exports kryptonbutterfly.xmlConfig4J.adapter.primitive;
+	exports kryptonbutterfly.xmlConfig4J.adapter.boxed;
+	exports kryptonbutterfly.xmlConfig4J.adapter.arrays;
+	exports kryptonbutterfly.xmlConfig4J.adapter.misc;
+	exports kryptonbutterfly.xmlConfig4J.adapter.collections;
 	
 	requires transitive java.xml;
-	requires kryptonbutterfly.ReflectionUtils;
+	requires transitive java.desktop;
+	requires org.junit.jupiter.api;
 }

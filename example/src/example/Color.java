@@ -49,4 +49,10 @@ public class Color
 	}
 	
 	public final static Color ORANGE = new Color(0xFF7700FF);
+	
+	@Override
+	public String toString()
+	{
+		return String.format("Color [r=%x, g=%x, b=%x, a=%x]", red, green, blue, alpha);
+	}
 }

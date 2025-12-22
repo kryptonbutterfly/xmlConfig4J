@@ -1,0 +1,72 @@
+package utils;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import kryptonbutterfly.xmlConfig4J.BindingBuilder;
+import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
+import kryptonbutterfly.xmlConfig4J.adapter.misc.AwtColorAdapter;
+
+public interface Validator
+{
+	public static final XmlDataBinding c4j = new BindingBuilder()
+		.addTypeAdapter(new AwtColorAdapter())
+		.build();
+	
+	default void validate()
+	{
+		validate(this);
+	}
+	
+	static void validate(Object data)
+	{
+		validate(data, false);
+	}
+	
+	static void validate(Object data, boolean printXml)
+	{
+		try
+		{
+			final var xml = c4j.toXml(data);
+			try
+			{
+				final var result = c4j.fromXML(xml);
+				if (data instanceof boolean[] b)
+					assertArrayEquals(b, (boolean[]) result, "xml was:\n" + xml);
+				else if (data instanceof byte[] b)
+					assertArrayEquals(b, (byte[]) result, "xml was:\n" + xml);
+				else if (data instanceof char[] c)
+					assertArrayEquals(c, (char[]) result, "xml was:\n" + xml);
+				else if (data instanceof short[] s)
+					assertArrayEquals(s, (short[]) result, "xml was:\n" + xml);
+				else if (data instanceof int[] i)
+					assertArrayEquals(i, (int[]) result, "xml was:\n" + xml);
+				else if (data instanceof float[] f)
+					assertArrayEquals(f, (float[]) result, "xml was:\n" + xml);
+				else if (data instanceof long[] l)
+					assertArrayEquals(l, (long[]) result, "xml was:\n" + xml);
+				else if (data instanceof double[] d)
+					assertArrayEquals(d, (double[]) result, "xml was:\n" + xml);
+				else if (data instanceof Object[] o)
+					assertArrayEquals(o, (Object[]) result, "xml was:\n" + xml);
+				else
+					assertEquals(data, result, "xml was:\n" + xml);
+				if (printXml)
+					System.out.printf("xml:%s\n", xml);
+			}
+			catch (Throwable e)
+			{
+				System.out.printf("""
+						```xml
+						%s```
+						
+						%s
+						""", xml, e.getMessage());
+				throw e;
+			}
+		}
+		catch (Throwable e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+}

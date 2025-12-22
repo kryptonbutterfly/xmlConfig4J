@@ -1,6 +1,5 @@
 package example;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,19 +7,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import kryptonbutterfly.xmlConfig4J.FileConfig;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
 
-public class Example extends FileConfig
+public class Example
 {
-	public Example()
-	{
-		super(new File("./config.xml"));
-		addParser(new ColorParser());
-	}
-	
 	@Value
-	public String projectName = "xmlConfig4J2";
+	public String projectName = "xmlConfig4J4";
 	
 	@Value("Description for this field")
 	public String author = "kryptonbutterfly";
@@ -65,7 +57,7 @@ public class Example extends FileConfig
 	public Set<String> set = new HashSet<>();
 	
 	@Value
-	public TestEnum testEnum = null;
+	public TestEnum testEnum = TestEnum.FALSE;
 	
 	public void printConfigContent()
 	{
