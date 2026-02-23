@@ -1,6 +1,7 @@
 package kryptonbutterfly.xmlConfig4J;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -10,17 +11,48 @@ import org.w3c.dom.Element;
 import kryptonbutterfly.xmlConfig4J.adapter.EnumAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.RecordAdapter;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.utils.FunctionThrowing;
 
 public final class XmlWriter
 {
-	private final XmlDataBinding	c4j;
-	final HashMap<String, Integer>	types	= new HashMap<>();
-	public final Document			doc;
+	private final XmlDataBinding											c4j;
+	final HashMap<String, Integer>											types	= new HashMap<>();
+	private final FunctionThrowing<Field[], Class<?>, SecurityException>	getFields;
+	public final Document													doc;
 	
-	XmlWriter(XmlDataBinding c4j, Document doc)
+	private int										nextId		= 0;
+	private final HashMap<ObjWrapper, Reference>	references	= new HashMap<>();
+	
+	XmlWriter(XmlDataBinding c4j, Document doc, boolean declaredOnly)
 	{
-		this.c4j	= c4j;
-		this.doc	= doc;
+		this.c4j		= c4j;
+		this.doc		= doc;
+		this.getFields	= declaredOnly ? Class::getDeclaredFields : Class::getFields;
+	}
+	
+	public Tags getTags()
+	{
+		return c4j.tags;
+	}
+	
+	private String nextId()
+	{
+		return "" + nextId++;
+	}
+	
+	public <T> boolean isSerialized(T data, Element elem)
+	{
+		final var	wrapper	= new ObjWrapper(data);
+		final var	ref		= references.get(wrapper);
+		
+		if (ref != null)
+		{
+			ref.reference(elem);
+			return true;
+		}
+		
+		references.put(wrapper, new Reference(elem));
+		return false;
 	}
 	
 	public <T> boolean requiresType(T data, Field field)
@@ -30,7 +62,7 @@ public final class XmlWriter
 	
 	public void writeNull(Element elem)
 	{
-		elem.setAttribute(XmlDataBinding.NULL, XmlDataBinding.TRUE);
+		elem.setAttribute(getTags().nullTag(), XmlDataBinding.TRUE);
 	}
 	
 	public <T> void write(Element elem, T data) throws IllegalAccessException
@@ -46,24 +78,34 @@ public final class XmlWriter
 	{
 		Objects.requireNonNull(data);
 		if (valueType.isEnum())
-			EnumAdapter.writeEnum(this, elem, (Enum<?>) data);
-		else
 		{
-			final var adapter = (TypeAdapter<T>) c4j.getAdapter(valueType);
-			if (adapter != null)
-				adapter.write(this, elem, data);
-			else if (valueType.isRecord())
+			EnumAdapter.writeEnum(this, elem, (Enum<?>) data);
+			return;
+		}
+		
+		final var adapter = (TypeAdapter<T>) c4j.getAdapter(valueType);
+		if (adapter != null
+				&& (adapter.isValueType()
+						|| !isSerialized(data, elem)))
+			adapter.write(this, elem, data);
+		else if (!isSerialized(data, elem))
+		{
+			if (valueType.isRecord())
 				RecordAdapter.writeRecord(this, elem, data, valueType);
 			else
-				writeGeneric(elem, data);
+				writeAnnotated(elem, data);
 		}
+		
 	}
 	
-	private <T> void writeGeneric(Element elem, T data) throws IllegalAccessException
+	private <T> void writeAnnotated(Element elem, T data) throws IllegalAccessException
 	{
 		final var type = data.getClass();
-		for (final var field : type.getDeclaredFields())
+		for (final var field : getFields.apply(type))
 		{
+			if (Modifier.isStatic(field.getModifiers()))
+				continue;
+			
 			final var annotation = c4j.includeFieldAnnotation(field);
 			if (annotation == null)
 				continue;
@@ -73,7 +115,7 @@ public final class XmlWriter
 			
 			if (annotation instanceof Value valAnnotation
 					&& !valAnnotation.value().isBlank())
-				childElem.setAttribute(XmlDataBinding.INFO, valAnnotation.value());
+				childElem.setAttribute(getTags().infoTag(), valAnnotation.value());
 			
 			final var childData = field.get(data);
 			
@@ -97,6 +139,45 @@ public final class XmlWriter
 		if (c4j.mapTypes)
 			typeName = types.computeIfAbsent(typeName, k -> types.size()).toString();
 		
-		elem.setAttribute(XmlDataBinding.TYPE, typeName);
+		elem.setAttribute(getTags().typeTag(), typeName);
+	}
+	
+	private static final record ObjWrapper(Object o)
+	{
+		@Override
+		public int hashCode()
+		{
+			return 0;
+		}
+		
+		@Override
+		public boolean equals(Object o)
+		{
+			if (!(o instanceof ObjWrapper obj))
+				return false;
+			return this.o == obj.o;
+		}
+	}
+	
+	private final class Reference
+	{
+		private String id = null;
+		
+		public final Element elem;
+		
+		public Reference(Element elem)
+		{
+			this.elem = elem;
+		}
+		
+		public void reference(Element elem)
+		{
+			if (id == null)
+			{
+				id = nextId();
+				this.elem.setAttribute(getTags().instIdTag(), id);
+			}
+			elem.setAttribute(getTags().refIdTag(), id);
+		}
 	}
 }

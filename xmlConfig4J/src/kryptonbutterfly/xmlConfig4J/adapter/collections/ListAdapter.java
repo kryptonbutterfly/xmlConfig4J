@@ -8,13 +8,13 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 @SuppressWarnings("rawtypes")
-public class ListAdapter implements TypeAdapter<List>
+public final class ListAdapter implements TypeAdapter<List>
 {
 	@Override
 	public Class<List> getType()
@@ -30,7 +30,7 @@ public class ListAdapter implements TypeAdapter<List>
 		else
 			for (var child : value)
 			{
-				final var childElem = writer.doc.createElement(XmlDataBinding.ITEM);
+				final var childElem = writer.doc.createElement(writer.getTags().itemTag());
 				elem.appendChild(childElem);
 				if (child == null)
 					writer.writeNull(childElem);
@@ -50,14 +50,17 @@ public class ListAdapter implements TypeAdapter<List>
 		InvocationTargetException,
 		InstantiationException,
 		IllegalAccessException,
-		NoSuchMethodException
+		NoSuchMethodException,
+		BrokenReferenceException
 	{
 		if (reader.isNull(node))
 			return null;
-		final var	type	= reader.getType(node);
-		final var	list	= (List<?>) type.getConstructor().newInstance();
+		
+		final var list = (List<?>) classOfT.getConstructor().newInstance();
+		reader.registerInstance(node, list);
+		
 		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
 				list.add(reader.read(n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());

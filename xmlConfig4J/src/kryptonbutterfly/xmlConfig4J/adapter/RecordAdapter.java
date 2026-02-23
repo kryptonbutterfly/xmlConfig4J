@@ -9,11 +9,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 public final class RecordAdapter
 {
@@ -34,7 +34,7 @@ public final class RecordAdapter
 			
 			final var annotation = c.getAnnotation(Value.class);
 			if (annotation != null)
-				childElem.setAttribute(XmlDataBinding.INFO, annotation.value());
+				childElem.setAttribute(writer.getTags().infoTag(), annotation.value());
 			
 			final var childData = getData(c, value);
 			
@@ -79,7 +79,8 @@ public final class RecordAdapter
 		IllegalAccessException,
 		InvocationTargetException,
 		NoSuchMethodException,
-		NoSuchFieldException
+		NoSuchFieldException,
+		BrokenReferenceException
 	{
 		if (reader.isNull(node))
 			return null;

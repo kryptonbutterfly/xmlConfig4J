@@ -8,7 +8,6 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.DoubleAdapter;
@@ -30,8 +29,8 @@ public final class DoubleArrayAdapter implements TypeAdapter<double[]>
 		else
 			for (final double d : value)
 			{
-				final var item = writer.doc.createElement(XmlDataBinding.ITEM);
-				DoubleAdapter.write(item, d);
+				final var item = writer.doc.createElement(writer.getTags().itemTag());
+				DoubleAdapter.write(writer.getTags().valueTag(), item, d);
 				elem.appendChild(item);
 			}
 	}
@@ -49,14 +48,17 @@ public final class DoubleArrayAdapter implements TypeAdapter<double[]>
 		if (reader.isNull(node))
 			return null;
 		
+		final var	nodes	= node.getChildNodes();
+		final var	result	= new double[nodes.getLength()];
+		reader.registerInstance(node, result);
+		
 		final var list = new ArrayList<Double>();
-		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
-				list.add(DoubleAdapter.read(n));
+		for (final var n : new Nodes(nodes))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
+				list.add(DoubleAdapter.read(reader.getTags().valueTag(), n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());
 			
-		final var result = new double[list.size()];
 		for (int i = 0; i < list.size(); i++)
 			result[i] = list.get(i);
 		return result;

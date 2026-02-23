@@ -6,6 +6,7 @@ import javax.xml.transform.TransformerException;
 import test.TestArray;
 import test.TestBoxed;
 import test.TestColor;
+import test.TestCyclicData;
 import test.TestEnum;
 import test.TestList;
 import test.TestMap;
@@ -37,6 +38,7 @@ public final class XmlConfig4JTestRunner
 		
 		new TestBoxed().test();
 		new TestColor().test();
+		new TestCyclicData().test();
 		new TestEnum().testEnumValues();
 		new TestEnum().test();
 		new TestList().test();

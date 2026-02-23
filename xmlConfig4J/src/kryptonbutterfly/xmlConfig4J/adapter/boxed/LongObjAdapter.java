@@ -1,14 +1,15 @@
 package kryptonbutterfly.xmlConfig4J.adapter.boxed;
 
+import static kryptonbutterfly.xmlConfig4J.utils.InternalConstants.*;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class LongObjAdapter implements TypeAdapter<Long>
+public final class LongObjAdapter implements TypeAdapter<Long>
 {
 	@Override
 	public Class<Long> getType()
@@ -22,7 +23,7 @@ public class LongObjAdapter implements TypeAdapter<Long>
 		if (value == null)
 			writer.writeNull(elem);
 		else
-			elem.setAttribute(XmlDataBinding.VALUE, value.toString());
+			elem.setAttribute(writer.getTags().valueTag(), value.toString());
 	}
 	
 	@Override
@@ -30,13 +31,16 @@ public class LongObjAdapter implements TypeAdapter<Long>
 	{
 		if (reader.isNull(node))
 			return null;
-		final var valueAttr = XmlReader.getAttribute(node, XmlDataBinding.VALUE);
+		final var valueAttr = XmlReader.getAttribute(node, reader.getTags().valueTag());
 		if (valueAttr == null)
 			return null;
 		final var value = valueAttr.getValue();
-		if (value.startsWith("#"))
-			return Long.parseUnsignedLong(value.substring(1), 16);
+		
+		final Long result;
+		if (value.startsWith(HEX_PREFIX))
+			result = Long.parseUnsignedLong(value.substring(1), 16);
 		else
-			return Long.parseLong(value);
+			result = Long.parseLong(value);
+		return reader.registerInstance(node, result);
 	}
 }

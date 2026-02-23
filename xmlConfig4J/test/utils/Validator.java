@@ -2,6 +2,9 @@ package utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import kryptonbutterfly.xmlConfig4J.BindingBuilder;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.adapter.misc.AwtColorAdapter;
@@ -22,6 +25,27 @@ public interface Validator
 		validate(data, false);
 	}
 	
+	static void validate2(Object data)
+	{
+		try
+		{
+			final String	xml1	= c4j.toXml(data);
+			final var		data2	= c4j.fromXml(xml1);
+			final String	xml2	= c4j.toXml(data2);
+			assertEquals(xml1, xml2);
+		}
+		catch (Exception e)
+		{
+			try
+			{
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e1)
+			{}
+			throw new RuntimeException(e);
+		}
+	}
+	
 	static void validate(Object data, boolean printXml)
 	{
 		try
@@ -29,7 +53,7 @@ public interface Validator
 			final var xml = c4j.toXml(data);
 			try
 			{
-				final var result = c4j.fromXML(xml);
+				final var result = c4j.fromXml(xml);
 				if (data instanceof boolean[] b)
 					assertArrayEquals(b, (boolean[]) result, "xml was:\n" + xml);
 				else if (data instanceof byte[] b)
@@ -66,6 +90,12 @@ public interface Validator
 		}
 		catch (Throwable e)
 		{
+			try
+			{
+				Thread.sleep(Duration.of(100, ChronoUnit.MILLIS));
+			}
+			catch (InterruptedException e1)
+			{}
 			throw new RuntimeException(e);
 		}
 	}

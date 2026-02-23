@@ -4,11 +4,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class CharObjAdapter implements TypeAdapter<Character>
+public final class CharObjAdapter implements TypeAdapter<Character>
 {
 	@Override
 	public Class<Character> getType()
@@ -22,7 +21,7 @@ public class CharObjAdapter implements TypeAdapter<Character>
 		if (value == null)
 			writer.writeNull(elem);
 		else
-			elem.setAttribute(XmlDataBinding.VALUE, value.toString());
+			elem.setAttribute(writer.getTags().valueTag(), value.toString());
 	}
 	
 	@Override
@@ -30,9 +29,9 @@ public class CharObjAdapter implements TypeAdapter<Character>
 	{
 		if (reader.isNull(node))
 			return null;
-		final var valueAttr = XmlReader.getAttribute(node, XmlDataBinding.VALUE);
+		final var valueAttr = XmlReader.getAttribute(node, reader.getTags().valueTag());
 		if (valueAttr == null)
 			return null;
-		return valueAttr.getValue().charAt(0);
+		return reader.registerInstance(node, Character.valueOf(valueAttr.getValue().charAt(0)));
 	}
 }

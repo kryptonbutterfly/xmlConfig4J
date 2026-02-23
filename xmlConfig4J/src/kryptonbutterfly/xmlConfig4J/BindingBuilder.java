@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 
 import kryptonbutterfly.xmlConfig4J.adapter.arrays.BoolArrayAdapter;
@@ -42,15 +40,25 @@ import kryptonbutterfly.xmlConfig4J.adapter.primitive.IntAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.LongAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.ShortAdapter;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.utils.InternalConstants;
 
-public class BindingBuilder
+public final class BindingBuilder
 {
 	private final HashMap<String, Class<?>>				classNameHistory		= new HashMap<>();
-	private final HashSet<Class<? extends Annotation>>	includeFieldAnnotations	= new HashSet<>(
-		Set.of(Value.class));
+	private final HashSet<Class<? extends Annotation>>	includeFieldAnnotations	= new HashSet<>();
+	private final ArrayList<TypeAdapter<?>>				adapterMap				= new ArrayList<>();
+	private final HashMap<XmlTags, String>				tags					= XmlTags.createTagsMap();
 	
-	private final ArrayList<TypeAdapter<?>> adapterMap = new ArrayList<>(
-		List.of(
+	private boolean	mapTypes		= true;
+	private boolean	indent			= true;
+	private int		indentAmount	= 4;
+	private boolean	declaredOnly	= true;
+	
+	public BindingBuilder()
+	{
+		addIncludeAnnotation(Value.class);
+		
+		addTypeAdapter(
 			new BoolAdapter(),
 			new ByteAdapter(),
 			new CharAdapter(),
@@ -58,8 +66,9 @@ public class BindingBuilder
 			new IntAdapter(),
 			new FloatAdapter(),
 			new LongAdapter(),
-			new DoubleAdapter(),
-			
+			new DoubleAdapter());
+		
+		addTypeAdapter(
 			new BoolArrayAdapter(),
 			new ByteArrayAdapter(),
 			new CharArrayAdapter(),
@@ -68,8 +77,9 @@ public class BindingBuilder
 			new FloatArrayAdapter(),
 			new LongArrayAdapter(),
 			new DoubleArrayAdapter(),
-			new ObjectArrayAdapter(),
-			
+			new ObjectArrayAdapter());
+		
+		addTypeAdapter(
 			new BoolObjAdapter(),
 			new ByteObjAdapter(),
 			new CharObjAdapter(),
@@ -77,36 +87,44 @@ public class BindingBuilder
 			new IntObjAdapter(),
 			new LongObjAdapter(),
 			new FloatObjAdapter(),
-			new DoubleObjAdapter(),
-			
+			new DoubleObjAdapter());
+		
+		addTypeAdapter(
 			new ListAdapter(),
 			new MapAdapter(),
-			new SetAdapter(),
-			
+			new SetAdapter());
+		
+		addTypeAdapter(
 			new StringAdapter(),
-			new UuidAdapter()));
-	
-	private boolean	mapTypes		= true;
-	private String	rootTag			= "root";
-	private String	typesTag		= "types";
-	private String	dataTag			= "data";
-	private boolean	indent			= true;
-	private int		indentAmount	= 4;
+			new UuidAdapter());
+	}
 	
 	public BindingBuilder addClassNameMapping(String oldName, Class<?> newType)
 	{
+		Objects.requireNonNull(oldName);
+		Objects.requireNonNull(newType);
 		classNameHistory.put(oldName, newType);
 		return this;
 	}
 	
 	public BindingBuilder addTypeAdapter(TypeAdapter<?> adapter)
 	{
+		Objects.requireNonNull(adapter);
 		adapterMap.add(adapter);
+		return this;
+	}
+	
+	public BindingBuilder addTypeAdapter(TypeAdapter<?>... adapter)
+	{
+		Objects.requireNonNull(adapter);
+		for (final var a : adapter)
+			addTypeAdapter(a);
 		return this;
 	}
 	
 	public BindingBuilder addIncludeAnnotation(Class<? extends Annotation> annotation)
 	{
+		Objects.requireNonNull(annotation);
 		includeFieldAnnotations.add(annotation);
 		return this;
 	}
@@ -117,21 +135,14 @@ public class BindingBuilder
 		return this;
 	}
 	
-	public BindingBuilder rootTag(String rootTag)
+	public BindingBuilder setTag(XmlTags tag, String tagValue)
 	{
-		this.rootTag = rootTag;
-		return this;
-	}
-	
-	public BindingBuilder typesTag(String typesTag)
-	{
-		this.typesTag = typesTag;
-		return this;
-	}
-	
-	public BindingBuilder dataTag(String dataTag)
-	{
-		this.dataTag = dataTag;
+		Objects.requireNonNull(tag);
+		Objects.requireNonNull(tagValue);
+		if (!tagValue.matches(InternalConstants.XML_IDENTIFIER_MATCHER))
+			throw new IllegalArgumentException("'%s' is not a valid xml identifier!".formatted(tagValue));
+		
+		this.tags.put(tag, tagValue);
 		return this;
 	}
 	
@@ -143,7 +154,16 @@ public class BindingBuilder
 	
 	public BindingBuilder indent(int indentAmount)
 	{
+		if (indentAmount < 1)
+			throw new IllegalArgumentException("The indent amount must be > 0, but was %d.".formatted(indentAmount));
+		
 		this.indentAmount = indentAmount;
+		return this;
+	}
+	
+	public BindingBuilder declaredOnly(boolean declaredOnly)
+	{
+		this.declaredOnly = declaredOnly;
 		return this;
 	}
 	
@@ -153,12 +173,11 @@ public class BindingBuilder
 			classNameHistory,
 			adapterMap,
 			mapTypes,
-			rootTag,
-			typesTag,
-			dataTag,
+			XmlTags.fromMap(tags),
 			includeAnnotations(),
 			indent,
-			indentAmount);
+			indentAmount,
+			declaredOnly);
 	}
 	
 	private Function<Field, ? extends Annotation> includeAnnotations()

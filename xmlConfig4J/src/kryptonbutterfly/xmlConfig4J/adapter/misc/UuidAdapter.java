@@ -9,7 +9,7 @@ import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class UuidAdapter implements TypeAdapter<UUID>
+public final class UuidAdapter implements TypeAdapter<UUID>
 {
 	public static final String	MOST_SIG	= "mostSigBits";
 	public static final String	LEAST_SIG	= "leastSigBits";
@@ -39,6 +39,6 @@ public class UuidAdapter implements TypeAdapter<UUID>
 			return null;
 		final var	mostSigBit	= XmlReader.getAttribute(node, MOST_SIG).getValue();
 		final var	leastSigBit	= XmlReader.getAttribute(node, LEAST_SIG).getValue();
-		return new UUID(Long.parseLong(mostSigBit), Long.parseLong(leastSigBit));
+		return reader.registerInstance(node, new UUID(Long.parseLong(mostSigBit), Long.parseLong(leastSigBit)));
 	}
 }

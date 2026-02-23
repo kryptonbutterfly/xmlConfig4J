@@ -6,10 +6,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 public interface TypeAdapter<T>
 {
 	Class<T> getType();
+	
+	default boolean isValueType()
+	{
+		return false;
+	}
 	
 	void write(XmlWriter writer, Element elem, T value) throws IllegalAccessException;
 	
@@ -20,5 +26,6 @@ public interface TypeAdapter<T>
 		InvocationTargetException,
 		InstantiationException,
 		IllegalAccessException,
-		NoSuchMethodException;
+		NoSuchMethodException,
+		BrokenReferenceException;
 }

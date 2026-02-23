@@ -8,13 +8,13 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 @SuppressWarnings("rawtypes")
-public class SetAdapter implements TypeAdapter<Set>
+public final class SetAdapter implements TypeAdapter<Set>
 {
 	@Override
 	public Class<Set> getType()
@@ -30,10 +30,15 @@ public class SetAdapter implements TypeAdapter<Set>
 		else
 			for (var child : value)
 			{
-				final var childElem = writer.doc.createElement(XmlDataBinding.ITEM);
+				final var childElem = writer.doc.createElement(writer.getTags().itemTag());
 				elem.appendChild(childElem);
-				writer.write(childElem, child, child.getClass());
-				writer.writeType(childElem, child.getClass());
+				if (child == null)
+					writer.writeNull(childElem);
+				else
+				{
+					writer.write(childElem, child, child.getClass());
+					writer.writeType(childElem, child.getClass());
+				}
 			}
 	}
 	
@@ -45,14 +50,16 @@ public class SetAdapter implements TypeAdapter<Set>
 		InvocationTargetException,
 		InstantiationException,
 		IllegalAccessException,
-		NoSuchMethodException
+		NoSuchMethodException,
+		BrokenReferenceException
 	{
 		if (reader.isNull(node))
 			return null;
-		final var	type	= reader.getType(node);
-		final var	set		= (Set<?>) type.getConstructor().newInstance();
+		final var set = (Set<?>) classOfT.getConstructor().newInstance();
+		reader.registerInstance(node, set);
+		
 		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
 				set.add(reader.read(n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());

@@ -99,7 +99,7 @@ public interface GenericUtils
 						else if (eType.isArray())
 							sum.append(Arrays.deepHashCode((Object[]) value));
 						else
-							sum.append(Objects.hashCode((Object[]) value));
+							sum.append(Objects.hashCode(value));
 					}
 				}
 				catch (IllegalArgumentException | IllegalAccessException e)

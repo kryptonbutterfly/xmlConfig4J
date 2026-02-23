@@ -1,14 +1,15 @@
 package kryptonbutterfly.xmlConfig4J.adapter.primitive;
 
+import static kryptonbutterfly.xmlConfig4J.utils.InternalConstants.*;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class IntAdapter implements TypeAdapter<Integer>
+public final class IntAdapter implements TypeAdapter<Integer>
 {
 	@Override
 	public Class<Integer> getType()
@@ -17,26 +18,32 @@ public class IntAdapter implements TypeAdapter<Integer>
 	}
 	
 	@Override
+	public boolean isValueType()
+	{
+		return true;
+	}
+	
+	@Override
 	public void write(XmlWriter writer, Element elem, Integer value)
 	{
-		write(elem, value);
+		write(writer.getTags().valueTag(), elem, value);
 	}
 	
 	@Override
 	public Integer read(XmlReader reader, Node node, Class<?> classOfT)
 	{
-		return read(node);
+		return read(reader.getTags().valueTag(), node);
 	}
 	
-	public static void write(Element elem, int value)
+	public static void write(String tag, Element elem, int value)
 	{
-		elem.setAttribute(XmlDataBinding.VALUE, Integer.toString(value));
+		elem.setAttribute(tag, Integer.toString(value));
 	}
 	
-	public static int read(Node node)
+	public static int read(String tag, Node node)
 	{
-		final var value = XmlReader.getAttribute(node, XmlDataBinding.VALUE).getValue();
-		if (value.startsWith("#"))
+		final var value = XmlReader.getAttribute(node, tag).getValue();
+		if (value.startsWith(HEX_PREFIX))
 			return Integer.parseUnsignedInt(value.substring(1), 16);
 		else
 			return Integer.parseInt(value);

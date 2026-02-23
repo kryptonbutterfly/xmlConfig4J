@@ -1,6 +1,27 @@
+<img width="82" align="left"
+src="https://raw.githubusercontent.com/kryptonbutterfly/xmlConfig4J/master/md/icon.svg"/>
+
 # xmlConfig4J [![Maven Package](https://github.com/kryptonbutterfly/xmlConfig4J/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/kryptonbutterfly/xmlConfig4J/actions/workflows/maven-publish.yml)
 
-A Simple to use Library for Object de-/serialization to xml-Format
+A Simple to use Library for Object de-/serialization to xml-Format.
+
+## What is supported
+
+Not only tree shaped data structures, but acyclic as well as cyclic graphs.
+The intrisically supported java types are:
+
+* primitive types
+* boxed types of primitives
+* types implementing `java.util.List`, `java.util.Set` and `java.util.Map`
+* all enums
+* all records
+* `java.awt.Color`
+* `java.lang.String`
+* `java.util.UUID`
+* Any class with an empty or default constructor will de-/serialize all declared fields annotated with `@Value` or an equivalent registered annotation.
+* any array of a supported type, including arrays of arrays …
+
+In addition it is possible to implement a new `TypeAdapter` and register it, in order to support more types.
 
 ## Getting the latest release
 
@@ -14,7 +35,7 @@ A Simple to use Library for Object de-/serialization to xml-Format
 <dependency>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xml_config_4j</artifactId>
-  <version>3.2.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
@@ -22,39 +43,44 @@ A Simple to use Library for Object de-/serialization to xml-Format
 
 <table>
   <tr>
-    <th align="center">java version</th>
     <th>library version</th>
     <th align="center">Download</th>
+    <th align="center">java version</th>
   </tr>
   <tr>
-    <td align="center">18+</td>
+    <td>4.0.0</td>
+    <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v4.0.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">21+</td>
+  </tr>
+  <tr>
     <td>3.2.0</td>
     <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v3.2.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">18+</td>
   </tr>
   <tr>
-    <td align="center">18+</td>
     <td>3.1.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/tag/v3.2.0"><img width="28" src="./md/exclamation_mark.svg" title="DEPRECATED: Don't use this version, use v3.2.0 instead!"/></a></td>
     <td align="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v3.1.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">18+</td>
   </tr>
   <tr>
-    <td align="center">18+</td>
     <td>2.2.0</td>
     <td><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.2.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">18+</td>
   </tr>
   <tr>
-    <td align="center">18+</td>
     <td>2.1.0</td>
     <td><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.1.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">18+</td>
   </tr>
   <tr>
-    <td align="center">18+</td>
     <td>2.0.7</td>
     <td><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.0.7/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">18+</td>
   </tr>
   <tr>
-    <td align="center">8+</td>
     <td>2.0.4</td>
     <td><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v2.0.4/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">8+</td>
   </tr>
 </table>
 
@@ -87,12 +113,16 @@ Any help with this project is greatly appreciated.
 The class TinyExample:
 
 ```java
-public class TinyExample extends FileConfig
+public class TinyExample
 {
-  public TinyExample()
-  {
-    super(new File("./config.xml"));
-  }
+  public static final XmlDataBinding xdb = new BindingBuilder()
+    .indent(true)
+    .indent(2)
+    .addTypeAdapter(new ColorAdapter())
+    .mapTypes(true)
+    .build();
+  
+  public static final File config = new File("./config.xml");
   
   @Value("List of favorite foods.")
   public ArrayList<String> favoriteFoods = genFavFoods();
@@ -102,7 +132,10 @@ public class TinyExample extends FileConfig
   
   @Value
   public CustomClass cc = new CustomClass();
-
+  
+  @Value
+  public CustomClass cc2 = cc;
+  
   @Value
   public HashMap<String, String> map = new HashMap<>();
   {
@@ -112,7 +145,7 @@ public class TinyExample extends FileConfig
   }
   
   @Value
-  public String[][] array = new String[][] {{"Banana", null}, null, {}, {"Apple", "Orange"}};
+  public String[][] array = new String[][] { { "Banana", null }, null, {}, { "Apple", "Orange" } };
   
   @Value
   public HashSet<String> set = new HashSet<>();
@@ -123,9 +156,15 @@ public class TinyExample extends FileConfig
     set.add(null);
   }
   
+  public static class CustomClass
+  {
+    @Value
+    public double pi = Math.PI;
+  }
+  
   private ArrayList<String> genFavFoods()
   {
-    ArrayList<String> list = new ArrayList<>();
+    var list = new ArrayList<String>();
     list.add("Banana");
     list.add("Apple");
     list.add(null);
@@ -133,35 +172,28 @@ public class TinyExample extends FileConfig
     return list;
   }
   
-  public static void main(String[] args) throws IOException
+  public static void main(String[] args)
+    throws Exception
   {
-    TinyExample config = new TinyExample();
-    if(config.exists())
-    {
-      config.load();
-      
-      System.out.println("List:");
-      config.favoriteFoods.stream().map(s -> "\t" + s).forEach(System.out::println);
-      
-      System.out.printf("%nsomeNumber:%n\t%s%n", config.someNumber);
-      
-      System.out.printf("%nPi:%n\t%s%n", config.cc.pi);
-      
-      System.out.printf("%nMap:%n");
-      config.map.entrySet().stream().map(s -> "\t" + s).forEach(System.out::println);
-      
-      System.out.printf("%nSet:%n");
-      config.set.stream().map(s -> "\t" + s).forEach(System.out::println);
-      
-      System.out.printf("%nArray:%n%s%n", Arrays.deepToString(config.array));
-    }
-    config.save();
-  }
-  
-  public static class CustomClass
-  {
-    @Value
-    public double pi = Math.PI;
+    if (config.exists())
+      try (var iStream = new FileInputStream(config))
+      {
+        var data = (TinyExample) xdb.fromXml(iStream);
+        System.out.printf(
+          "List:\n\t%s\n\nsomeNumber:\n\t%s\n\nPI:\n\t%s\n\nMap:\n\t%s\n\nSet:\n\t%s\n\nArray:\n\t%s\n\ncc == cc2 : %s\n\n",
+          data.favoriteFoods.stream().reduce((a, b) -> a + "\n\t" + b).orElse(""),
+          data.someNumber,
+          data.cc.pi,
+          data.map.entrySet().stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
+          data.set.stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
+          Arrays.deepToString(data.array),
+          data.cc == data.cc2);
+      }
+    else
+      try (var oStream = new FileOutputStream(config))
+      {
+        xdb.toXml(new TinyExample(), oStream);
+      }
   }
 }
 ```
@@ -171,24 +203,23 @@ generates the config File ./config.xml :
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root>
   <types>
-    <item id="4" name="java.util.HashSet"/>
-    <item id="2" name="java.util.HashMap"/>
     <item id="1" name="java.lang.String"/>
-    <item id="3" name="[Ljava.lang.String;"/>
-    <item id="0" name="java.util.ArrayList"/>
+    <item id="0" name="example.TinyExample"/>
+    <item id="2" name="[Ljava.lang.String;"/>
   </types>
-  <config>
-    <favoriteFoods info="List of favorite foods." type="0">
+  <data type="0">
+    <favoriteFoods info="List of favorite foods.">
       <item type="1" value="Banana"/>
       <item type="1" value="Apple"/>
       <item null="true"/>
       <item type="1" value="Cheese"/>
     </favoriteFoods>
     <someNumber value="1337"/>
-    <cc>
+    <cc inst-id="0">
       <pi value="3.141592653589793"/>
     </cc>
-    <map type="2">
+    <cc2 ref-id="0"/>
+    <map>
       <item>
         <key null="true"/>
         <value type="1" value="A"/>
@@ -203,23 +234,23 @@ generates the config File ./config.xml :
       </item>
     </map>
     <array>
-      <item type="3">
+      <item type="2">
         <item type="1" value="Banana"/>
         <item null="true"/>
       </item>
       <item null="true"/>
-      <item type="3"/>
-      <item type="3">
+      <item type="2"/>
+      <item type="2">
         <item type="1" value="Apple"/>
         <item type="1" value="Orange"/>
       </item>
     </array>
-    <set type="4">
+    <set>
       <item null="true"/>
       <item type="1" value="A"/>
       <item type="1" value="B"/>
       <item type="1" value="C"/>
     </set>
-  </config>
+  </data>
 </root>
 ```

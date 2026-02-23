@@ -4,11 +4,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class StringAdapter implements TypeAdapter<String>
+public final class StringAdapter implements TypeAdapter<String>
 {
 	@Override
 	public Class<String> getType()
@@ -17,14 +16,20 @@ public class StringAdapter implements TypeAdapter<String>
 	}
 	
 	@Override
+	public boolean isValueType()
+	{
+		return true;
+	}
+	
+	@Override
 	public void write(XmlWriter writer, Element elem, String value)
 	{
-		elem.setAttribute(XmlDataBinding.VALUE, value);
+		elem.setAttribute(writer.getTags().valueTag(), value);
 	}
 	
 	@Override
 	public String read(XmlReader reader, Node node, Class<?> classOfT)
 	{
-		return XmlReader.getAttribute(node, XmlDataBinding.VALUE).getValue();
+		return XmlReader.getAttribute(node, reader.getTags().valueTag()).getValue();
 	}
 }

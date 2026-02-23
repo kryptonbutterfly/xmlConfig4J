@@ -7,12 +7,11 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.ShortAdapter;
 
-public class ShortArrayAdapter implements TypeAdapter<short[]>
+public final class ShortArrayAdapter implements TypeAdapter<short[]>
 {
 	@Override
 	public Class<short[]> getType()
@@ -28,8 +27,8 @@ public class ShortArrayAdapter implements TypeAdapter<short[]>
 		else
 			for (final short e : value)
 			{
-				final var item = writer.doc.createElement(XmlDataBinding.ITEM);
-				ShortAdapter.write(item, e);
+				final var item = writer.doc.createElement(writer.getTags().itemTag());
+				ShortAdapter.write(writer.getTags().valueTag(), item, e);
 				elem.appendChild(item);
 			}
 		
@@ -40,14 +39,18 @@ public class ShortArrayAdapter implements TypeAdapter<short[]>
 	{
 		if (reader.isNull(node))
 			return null;
+		
+		final var	nodes	= node.getChildNodes();
+		final var	result	= new short[nodes.getLength()];
+		reader.registerInstance(node, result);
+		
 		final var list = new ArrayList<Short>();
-		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
-				list.add(ShortAdapter.read(n));
+		for (final var n : new Nodes(nodes))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
+				list.add(ShortAdapter.read(reader.getTags().valueTag(), n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());
 			
-		final var result = new short[list.size()];
 		for (int i = 0; i < list.size(); i++)
 			result[i] = list.get(i);
 		return result;

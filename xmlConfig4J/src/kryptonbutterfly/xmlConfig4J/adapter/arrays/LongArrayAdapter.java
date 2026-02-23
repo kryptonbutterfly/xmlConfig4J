@@ -7,12 +7,11 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.LongAdapter;
 
-public class LongArrayAdapter implements TypeAdapter<long[]>
+public final class LongArrayAdapter implements TypeAdapter<long[]>
 {
 	@Override
 	public Class<long[]> getType()
@@ -28,8 +27,8 @@ public class LongArrayAdapter implements TypeAdapter<long[]>
 		else
 			for (final long e : value)
 			{
-				final var item = writer.doc.createElement(XmlDataBinding.ITEM);
-				LongAdapter.write(item, e);
+				final var item = writer.doc.createElement(writer.getTags().itemTag());
+				LongAdapter.write(writer.getTags().valueTag(), item, e);
 				elem.appendChild(item);
 			}
 	}
@@ -39,14 +38,18 @@ public class LongArrayAdapter implements TypeAdapter<long[]>
 	{
 		if (reader.isNull(node))
 			return null;
+		
+		final var	nodes	= node.getChildNodes();
+		final var	result	= new long[nodes.getLength()];
+		reader.registerInstance(node, result);
+		
 		final var list = new ArrayList<Long>();
-		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
-				list.add(LongAdapter.read(n));
+		for (final var n : new Nodes(nodes))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
+				list.add(LongAdapter.read(reader.getTags().valueTag(), n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());
 			
-		final var result = new long[list.size()];
 		for (int i = 0; i < list.size(); i++)
 			result[i] = list.get(i);
 		return result;

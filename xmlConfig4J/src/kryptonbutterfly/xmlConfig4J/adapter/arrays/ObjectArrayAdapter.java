@@ -1,7 +1,5 @@
 package kryptonbutterfly.xmlConfig4J.adapter.arrays;
 
-import static kryptonbutterfly.xmlConfig4J.XmlDataBinding.*;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -14,8 +12,9 @@ import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
-public class ObjectArrayAdapter implements TypeAdapter<Object[]>
+public final class ObjectArrayAdapter implements TypeAdapter<Object[]>
 {
 	@Override
 	public Class<Object[]> getType()
@@ -31,7 +30,7 @@ public class ObjectArrayAdapter implements TypeAdapter<Object[]>
 		else
 			for (final var e : value)
 			{
-				final var item = writer.doc.createElement(ITEM);
+				final var item = writer.doc.createElement(writer.getTags().itemTag());
 				elem.appendChild(item);
 				if (e != null)
 					writer.writeType(item, e.getClass());
@@ -47,18 +46,23 @@ public class ObjectArrayAdapter implements TypeAdapter<Object[]>
 		InvocationTargetException,
 		InstantiationException,
 		IllegalAccessException,
-		NoSuchMethodException
+		NoSuchMethodException,
+		BrokenReferenceException
 	{
 		if (reader.isNull(node))
 			return null;
 		
+		final var	nodes	= node.getChildNodes();
+		final var	result	= Array.newInstance(classOfT.componentType(), nodes.getLength());
+		reader.registerInstance(node, result);
+		
 		final var list = new ArrayList<>();
-		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(ITEM))
+		for (final var n : new Nodes(nodes))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
 				list.add(reader.read(n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());
 			
-		return list.toArray(d -> (Object[]) Array.newInstance(classOfT.componentType(), d));
+		return list.toArray(d -> (Object[]) result);
 	}
 }

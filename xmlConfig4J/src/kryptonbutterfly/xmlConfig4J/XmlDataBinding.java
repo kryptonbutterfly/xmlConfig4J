@@ -2,11 +2,14 @@ package kryptonbutterfly.xmlConfig4J;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -18,7 +21,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,9 +29,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -38,17 +37,11 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 public final class XmlDataBinding
 {
-	public static final String	ID		= "id";
-	public static final String	NAME	= "name";
-	public static final String	TYPE	= "type";
-	public static final String	NULL	= "null";
-	public static final String	ITEM	= "item";
-	public static final String	VALUE	= "value";
-	public static final String	INFO	= "info";
-	public static final String	TRUE	= Boolean.TRUE.toString();
+	public static final String TRUE = Boolean.TRUE.toString();
 	
 	final Map<String, Class<?>>			classNameHistory;
 	private final List<TypeAdapter<?>>	adapterMap;
@@ -56,8 +49,9 @@ public final class XmlDataBinding
 	final boolean			mapTypes;
 	private final boolean	indent;
 	private final int		indentAmount;
+	private final boolean	declaredOnly;
 	
-	private final String rootTag, typesTag, dataTag;
+	final Tags tags;
 	
 	private final Function<Field, ? extends Annotation> includeFieldAnnotation;
 	
@@ -78,24 +72,22 @@ public final class XmlDataBinding
 		Map<String, Class<?>> classNameHistory,
 		List<TypeAdapter<?>> adapterMap,
 		boolean mapTypes,
-		String rootTag,
-		String typesTag,
-		String dataTag,
+		Tags tags,
 		Function<Field, ? extends Annotation> includeFieldAnnotation,
 		boolean indent,
-		int indentAmount)
+		int indentAmount,
+		boolean declaredOnly)
 	{
 		this.classNameHistory		= classNameHistory;
 		this.adapterMap				= adapterMap;
 		this.mapTypes				= mapTypes;
 		this.includeFieldAnnotation	= includeFieldAnnotation;
 		
-		this.rootTag	= rootTag;
-		this.typesTag	= typesTag;
-		this.dataTag	= dataTag;
+		this.tags = tags;
 		
 		this.indent			= indent;
 		this.indentAmount	= indentAmount;
+		this.declaredOnly	= declaredOnly;
 	}
 	
 	private DocumentBuilder docBuilder() throws ParserConfigurationException
@@ -104,12 +96,6 @@ public final class XmlDataBinding
 		
 		factory.setIgnoringElementContentWhitespace(true);
 		return factory.newDocumentBuilder();
-	}
-	
-	private Validator createValidator(String schema) throws SAXException
-	{
-		var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		return schemaFactory.newSchema(new StreamSource(new StringReader(schema))).newValidator();
 	}
 	
 	private HashMap<Integer, String> readTypeMappings(Node mappings)
@@ -122,8 +108,8 @@ public final class XmlDataBinding
 		{
 			try
 			{
-				final var	idAttr		= (Attr) item.getAttributes().getNamedItem(ID);
-				final var	typeAttr	= (Attr) item.getAttributes().getNamedItem(NAME);
+				final var	idAttr		= (Attr) item.getAttributes().getNamedItem(tags.idTag());
+				final var	typeAttr	= (Attr) item.getAttributes().getNamedItem(tags.nameTag());
 				final var	id			= Integer.valueOf(idAttr.getValue());
 				final var	type		= typeAttr.getValue();
 				if (type != null)
@@ -147,7 +133,7 @@ public final class XmlDataBinding
 		return new ByteArrayInputStream(shortened.getBytes(StandardCharsets.UTF_8));
 	}
 	
-	public <T> T fromXML(String xml)
+	public <T> T fromXml(String xml)
 	{
 		try (final var iStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))
 		{
@@ -175,9 +161,18 @@ public final class XmlDataBinding
 			| InstantiationException
 			| IllegalAccessException
 			| NoSuchMethodException
-			| NoSuchFieldException e)
+			| NoSuchFieldException
+			| BrokenReferenceException e)
 		{
 			throw new RuntimeException(e);
+		}
+	}
+	
+	public <T> T fromXml(File inputFile) throws FileNotFoundException, IOException
+	{
+		try (final var iStream = new FileInputStream(inputFile))
+		{
+			return fromXml(iStream);
 		}
 	}
 	
@@ -188,9 +183,10 @@ public final class XmlDataBinding
 		InstantiationException,
 		IllegalAccessException,
 		NoSuchMethodException,
-		NoSuchFieldException
+		NoSuchFieldException,
+		BrokenReferenceException
 	{
-		final var rootNodeList = doc.getElementsByTagName(rootTag);
+		final var rootNodeList = doc.getElementsByTagName(tags.rootTag());
 		if (rootNodeList.getLength() == 0)
 			return null;
 		
@@ -202,15 +198,15 @@ public final class XmlDataBinding
 		for (final var node : new Nodes(nodes))
 		{
 			final var nodeName = node.getNodeName();
-			if (nodeName.equals(typesTag))
+			if (nodeName.equals(tags.typesTag()))
 				typesNode = node;
-			else if (nodeName.equals(dataTag))
+			else if (nodeName.equals(tags.dataTag()))
 				dataNode = node;
 			else
 				System.err.printf("Ignoring unexpected node: '%s'\n", nodeName);
 		}
 		
-		final var reader = new XmlReader(this, readTypeMappings(typesNode));
+		final var reader = new XmlReader(this, readTypeMappings(typesNode), declaredOnly);
 		return reader.read(dataNode);
 	}
 	
@@ -222,10 +218,10 @@ public final class XmlDataBinding
 		final var	factory		= DocumentBuilderFactory.newInstance();
 		final var	parser		= factory.newDocumentBuilder();
 		final var	document	= parser.newDocument();
-		final var	writer		= new XmlWriter(this, document);
+		final var	writer		= new XmlWriter(this, document, declaredOnly);
 		
-		final var	rootElement	= document.createElement(rootTag);
-		final var	dataElement	= document.createElement(dataTag);
+		final var	rootElement	= document.createElement(tags.rootTag());
+		final var	dataElement	= document.createElement(tags.dataTag());
 		writer.writeType(dataElement, data.getClass());
 		writer.write(dataElement, data);
 		
@@ -263,13 +259,26 @@ public final class XmlDataBinding
 		toXml(data, new StreamResult(oStream));
 	}
 	
+	public <T> void toXml(T data, File outputFile)
+		throws IllegalAccessException,
+		ParserConfigurationException,
+		TransformerException,
+		FileNotFoundException,
+		IOException
+	{
+		try (final var iStream = new FileOutputStream(outputFile))
+		{
+			toXml(data, iStream);
+		}
+	}
+	
 	private Element writeTypeMappings(XmlWriter writer)
 	{
-		final var mapping = writer.doc.createElement(typesTag);
+		final var mapping = writer.doc.createElement(tags.typesTag());
 		writer.types.forEach((typeName, i) -> {
-			final var type = writer.doc.createElement(ITEM);
-			type.setAttribute(ID, i.toString());
-			type.setAttribute(NAME, typeName);
+			final var type = writer.doc.createElement(tags.itemTag());
+			type.setAttribute(tags.idTag(), i.toString());
+			type.setAttribute(tags.nameTag(), typeName);
 			mapping.appendChild(type);
 		});
 		return mapping;

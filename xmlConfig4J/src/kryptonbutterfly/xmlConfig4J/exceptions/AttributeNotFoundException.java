@@ -3,7 +3,7 @@ package kryptonbutterfly.xmlConfig4J.exceptions;
 import org.w3c.dom.Node;
 
 @SuppressWarnings("serial")
-public class AttributeNotFoundException extends Exception
+public final class AttributeNotFoundException extends BindingException
 {
 	private static final String msgTmpl = "The Node '%s' doesn't have the expected Attribute '%s'";
 	

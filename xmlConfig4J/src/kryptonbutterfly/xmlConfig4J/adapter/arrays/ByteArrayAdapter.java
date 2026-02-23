@@ -7,12 +7,11 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.ByteAdapter;
 
-public class ByteArrayAdapter implements TypeAdapter<byte[]>
+public final class ByteArrayAdapter implements TypeAdapter<byte[]>
 {
 	@Override
 	public Class<byte[]> getType()
@@ -28,8 +27,8 @@ public class ByteArrayAdapter implements TypeAdapter<byte[]>
 		else
 			for (final byte e : value)
 			{
-				final var item = writer.doc.createElement(XmlDataBinding.ITEM);
-				ByteAdapter.write(item, e);
+				final var item = writer.doc.createElement(writer.getTags().itemTag());
+				ByteAdapter.write(writer.getTags().valueTag(), item, e);
 				elem.appendChild(item);
 			}
 	}
@@ -40,14 +39,17 @@ public class ByteArrayAdapter implements TypeAdapter<byte[]>
 		if (reader.isNull(node))
 			return null;
 		
+		final var	nodes	= node.getChildNodes();
+		final var	result	= new byte[nodes.getLength()];
+		reader.registerInstance(node, result);
+		
 		final var list = new ArrayList<Byte>();
-		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
-				list.add(ByteAdapter.read(n));
+		for (final var n : new Nodes(nodes))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
+				list.add(ByteAdapter.read(reader.getTags().valueTag(), n));
 			else
 				System.err.printf("Unexpected element '%s'\n", n.getNodeName());
 			
-		final var result = new byte[list.size()];
 		for (int i = 0; i < list.size(); i++)
 			result[i] = list.get(i);
 		

@@ -3,22 +3,22 @@ package kryptonbutterfly.xmlConfig4J.adapter.collections;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
+import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 @SuppressWarnings("rawtypes")
-public class MapAdapter implements TypeAdapter<Map>
+public final class MapAdapter implements TypeAdapter<Map>
 {
-	public static final String	KEY		= "key";
-	public static final String	VALUE	= "value";
+	public static final String KEY = "key";
 	
 	@Override
 	public Class<Map> getType()
@@ -36,20 +36,30 @@ public class MapAdapter implements TypeAdapter<Map>
 			for (final var e : value.entrySet())
 			{
 				final var	entry		= (Entry<?, ?>) e;
-				final var	entryElem	= writer.doc.createElement(XmlDataBinding.ITEM);
+				final var	entryElem	= writer.doc.createElement(writer.getTags().itemTag());
 				elem.appendChild(entryElem);
 				
 				final var keyElem = writer.doc.createElement(KEY);
 				entryElem.appendChild(keyElem);
 				final var key = entry.getKey();
-				writer.writeType(keyElem, key.getClass());
-				writer.write(keyElem, key, key.getClass());
+				if (key == null)
+					writer.writeNull(keyElem);
+				else
+				{
+					writer.writeType(keyElem, key.getClass());
+					writer.write(keyElem, key, key.getClass());
+				}
 				
-				var valElem = writer.doc.createElement(VALUE);
+				var valElem = writer.doc.createElement(writer.getTags().valueTag());
 				entryElem.appendChild(valElem);
 				final var val = entry.getValue();
-				writer.writeType(valElem, val.getClass());
-				writer.write(valElem, val, val.getClass());
+				if (val == null)
+					writer.writeNull(valElem);
+				else
+				{
+					writer.writeType(valElem, val.getClass());
+					writer.write(valElem, val, val.getClass());
+				}
 			}
 		}
 	}
@@ -63,23 +73,28 @@ public class MapAdapter implements TypeAdapter<Map>
 		InvocationTargetException,
 		InstantiationException,
 		IllegalAccessException,
-		NoSuchMethodException
+		NoSuchMethodException,
+		BrokenReferenceException
 	{
 		if (reader.isNull(node))
 			return null;
-		// final var type = reader.getType(node);
 		final Map<Object, Object> map = (Map<Object, Object>) classOfT.getConstructor().newInstance();
+		reader.registerInstance(node, map);
+		
 		for (final var n : new Nodes(node.getChildNodes()))
-			if (n.getNodeName().equals(XmlDataBinding.ITEM))
+			if (n.getNodeName().equals(reader.getTags().itemTag()))
 			{
 				Object key = null, value = null;
 				for (var e : new Nodes(n.getChildNodes()))
-					switch (e.getNodeName())
-					{
-						case KEY -> key = reader.read(e);
-						case VALUE -> value = reader.read(e);
-						default -> System.err.printf("Unexpected element '%s'\n", e.getNodeName());
-					}
+				{
+					final var nodeName = e.getNodeName();
+					if (Objects.equals(nodeName, KEY))
+						key = reader.read(e);
+					else if (Objects.equals(nodeName, reader.getTags().valueTag()))
+						value = reader.read(e);
+					else
+						System.err.printf("Unexpected element '%s'\n", e.getNodeName());
+				}
 				map.put(key, value);
 			}
 			else

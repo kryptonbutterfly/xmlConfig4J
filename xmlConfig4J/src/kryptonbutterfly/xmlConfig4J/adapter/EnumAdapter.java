@@ -3,7 +3,6 @@ package kryptonbutterfly.xmlConfig4J.adapter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
@@ -16,8 +15,8 @@ public final class EnumAdapter
 		else
 		{
 			final var enumInst = (Enum<?>) value;
-			elem.setAttribute(XmlDataBinding.VALUE, Integer.toString(value.ordinal()));
-			elem.setAttribute(XmlDataBinding.NAME, enumInst.name());
+			elem.setAttribute(writer.getTags().valueTag(), Integer.toString(value.ordinal()));
+			elem.setAttribute(writer.getTags().nameTag(), enumInst.name());
 		}
 	}
 	
@@ -26,7 +25,7 @@ public final class EnumAdapter
 		if (reader.isNull(node))
 			return null;
 		
-		final var	attrOrd		= XmlReader.getAttribute(node, XmlDataBinding.VALUE);
+		final var	attrOrd		= XmlReader.getAttribute(node, reader.getTags().valueTag());
 		final int	ordinal		= Integer.parseInt(attrOrd.getValue());
 		final var	constants	= classOfT.getEnumConstants();
 		if (ordinal >= 0 && ordinal < constants.length)

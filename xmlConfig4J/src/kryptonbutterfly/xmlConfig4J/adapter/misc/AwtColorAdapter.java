@@ -1,5 +1,7 @@
 package kryptonbutterfly.xmlConfig4J.adapter.misc;
 
+import static kryptonbutterfly.xmlConfig4J.utils.InternalConstants.*;
+
 import java.awt.Color;
 
 import org.w3c.dom.Attr;
@@ -10,7 +12,7 @@ import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 
-public class AwtColorAdapter implements TypeAdapter<Color>
+public final class AwtColorAdapter implements TypeAdapter<Color>
 {
 	public static final String	RED		= "red";
 	public static final String	GREEN	= "green";
@@ -30,10 +32,10 @@ public class AwtColorAdapter implements TypeAdapter<Color>
 			writer.writeNull(elem);
 		else
 		{
-			elem.setAttribute(RED, "#" + Integer.toString(value.getRed(), 16));
-			elem.setAttribute(GREEN, "#" + Integer.toString(value.getGreen(), 16));
-			elem.setAttribute(BLUE, "#" + Integer.toString(value.getBlue(), 16));
-			elem.setAttribute(ALPHA, "#" + Integer.toString(value.getAlpha(), 16));
+			elem.setAttribute(RED, HEX_PREFIX + Integer.toString(value.getRed(), 16));
+			elem.setAttribute(GREEN, HEX_PREFIX + Integer.toString(value.getGreen(), 16));
+			elem.setAttribute(BLUE, HEX_PREFIX + Integer.toString(value.getBlue(), 16));
+			elem.setAttribute(ALPHA, HEX_PREFIX + Integer.toString(value.getAlpha(), 16));
 		}
 	}
 	
@@ -48,7 +50,7 @@ public class AwtColorAdapter implements TypeAdapter<Color>
 		final int	blue	= colorValue(node, BLUE);
 		final int	alpha	= colorValue(node, ALPHA, 0xFF);
 		
-		return new Color(red, green, blue, alpha);
+		return reader.registerInstance(node, new Color(red, green, blue, alpha));
 	}
 	
 	private static int colorValue(Node node, String attr, int fallback)
@@ -62,7 +64,7 @@ public class AwtColorAdapter implements TypeAdapter<Color>
 	private static int colorValue(Attr valueAttr)
 	{
 		final var value = valueAttr.getValue();
-		if (value.startsWith("#"))
+		if (value.startsWith(HEX_PREFIX))
 			return Integer.parseInt(value.substring(1), 16) & 0xFF;
 		return Integer.parseInt(value) % 0xFF;
 	}
