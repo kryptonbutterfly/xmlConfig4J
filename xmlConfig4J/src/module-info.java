@@ -12,5 +12,4 @@ module kryptonbutterfly.xmlConfig4J
 	
 	requires transitive java.xml;
 	requires transitive java.desktop;
-	requires org.junit.jupiter.api;
 }

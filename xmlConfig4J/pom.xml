@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>kryptonbutterfly</groupId>
 	<artifactId>xml_config_4j</artifactId>
-	<version>4.0.0</version>
+	<version>4.0.1</version>
 	<name>xml_config_4j</name>
 	
 	<distributionManagement>
@@ -31,7 +31,7 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.10.1</version>
-			<scope>provided</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	
