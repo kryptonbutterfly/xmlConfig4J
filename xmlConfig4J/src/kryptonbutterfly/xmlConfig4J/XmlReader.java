@@ -130,9 +130,6 @@ public final class XmlReader
 		NoSuchFieldException,
 		BrokenReferenceException
 	{
-		if (classOfT.isEnum())
-			return (T) EnumAdapter.readEnum(this, node, classOfT);
-		
 		final var instID = getFromReference(node);
 		if (instID != null)
 			return (T) instID;
@@ -140,6 +137,9 @@ public final class XmlReader
 		final var adapter = c4j.getAdapter(classOfT);
 		if (adapter != null)
 			return (T) adapter.read(this, node, classOfT);
+		
+		if (classOfT.isEnum())
+			return (T) EnumAdapter.readEnum(this, node, classOfT);
 		
 		if (classOfT.isRecord())
 			return (T) RecordAdapter.readRecord(this, node, classOfT);

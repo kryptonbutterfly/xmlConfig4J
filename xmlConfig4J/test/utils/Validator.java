@@ -20,12 +20,12 @@ public interface Validator
 		validate(this);
 	}
 	
-	static void validate(Object data)
+	static <T> void validate(T data)
 	{
 		validate(data, false);
 	}
 	
-	static void validate2(Object data)
+	static <T> void validate2(T data)
 	{
 		try
 		{
@@ -46,7 +46,7 @@ public interface Validator
 		}
 	}
 	
-	static void validate(Object data, boolean printXml)
+	static <T> void validate(T data, boolean printXml)
 	{
 		try
 		{

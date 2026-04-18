@@ -109,6 +109,8 @@ public final class RecordAdapter
 			}
 		}
 		
-		return (T) constructor.newInstance(rawComponents.toArray(Object[]::new));
+		final var result = (T) constructor.newInstance(rawComponents.toArray(Object[]::new));
+		reader.registerInstance(node, result);
+		return result;
 	}
 }

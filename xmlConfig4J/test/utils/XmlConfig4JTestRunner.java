@@ -46,6 +46,7 @@ public final class XmlConfig4JTestRunner
 		new TestNull().test();
 		new TestPrimitive().test();
 		new TestRecord().test();
+		new TestRecord().testRepeating();
 		new TestSet().test();
 		new TestUuid().test();
 		new TestXml().test();

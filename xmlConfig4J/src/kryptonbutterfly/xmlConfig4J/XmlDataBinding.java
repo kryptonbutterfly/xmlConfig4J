@@ -145,6 +145,18 @@ public final class XmlDataBinding
 		}
 	}
 	
+	public <T> T fromXml(String xml, Class<T> classOfT)
+	{
+		try (final var iStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))
+		{
+			return fromXml(iStream, classOfT);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public <T> T fromXml(InputStream iStream)
 	{
 		try
@@ -168,11 +180,42 @@ public final class XmlDataBinding
 		}
 	}
 	
+	public <T> T fromXml(InputStream iStream, Class<T> classOfT)
+	{
+		try
+		{
+			return fromDoc(docBuilder().parse(prepareInput(iStream)), classOfT);
+		}
+		catch (
+			ParserConfigurationException
+			| SAXException
+			| IOException
+			| ClassNotFoundException
+			| AttributeNotFoundException
+			| InvocationTargetException
+			| InstantiationException
+			| IllegalAccessException
+			| NoSuchMethodException
+			| NoSuchFieldException
+			| BrokenReferenceException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public <T> T fromXml(File inputFile) throws FileNotFoundException, IOException
 	{
 		try (final var iStream = new FileInputStream(inputFile))
 		{
 			return fromXml(iStream);
+		}
+	}
+	
+	public <T> T fromXml(File inputFile, Class<T> classOfT) throws FileNotFoundException, IOException
+	{
+		try (final var iStream = new FileInputStream(inputFile))
+		{
+			return fromXml(iStream, classOfT);
 		}
 	}
 	
@@ -208,6 +251,40 @@ public final class XmlDataBinding
 		
 		final var reader = new XmlReader(this, readTypeMappings(typesNode), declaredOnly);
 		return reader.read(dataNode);
+	}
+	
+	private <T> T fromDoc(Document doc, Class<T> classOfT)
+		throws ClassNotFoundException,
+		AttributeNotFoundException,
+		InvocationTargetException,
+		InstantiationException,
+		IllegalAccessException,
+		NoSuchMethodException,
+		NoSuchFieldException,
+		BrokenReferenceException
+	{
+		final var rootNodeList = doc.getElementsByTagName(tags.rootTag());
+		if (rootNodeList.getLength() == 0)
+			return null;
+		
+		final var	root	= rootNodeList.item(0);
+		final var	nodes	= root.getChildNodes();
+		
+		Node	typesNode	= null;
+		Node	dataNode	= null;
+		for (final var node : new Nodes(nodes))
+		{
+			final var nodeName = node.getNodeName();
+			if (nodeName.equals(tags.typesTag()))
+				typesNode = node;
+			else if (nodeName.equals(tags.dataTag()))
+				dataNode = node;
+			else
+				System.err.printf("Ignoring unexpected node: '%s'\n", nodeName);
+		}
+		
+		final var reader = new XmlReader(this, readTypeMappings(typesNode), declaredOnly);
+		return reader.read(dataNode, classOfT);
 	}
 	
 	public <T> void toXml(T data, StreamResult output)

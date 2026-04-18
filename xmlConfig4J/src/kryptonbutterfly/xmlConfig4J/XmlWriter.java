@@ -77,17 +77,15 @@ public final class XmlWriter
 	public <T> void write(Element elem, T data, Class<? extends T> valueType) throws IllegalAccessException
 	{
 		Objects.requireNonNull(data);
-		if (valueType.isEnum())
-		{
-			EnumAdapter.writeEnum(this, elem, (Enum<?>) data);
-			return;
-		}
 		
 		final var adapter = (TypeAdapter<T>) c4j.getAdapter(valueType);
 		if (adapter != null
 				&& (adapter.isValueType()
 						|| !isSerialized(data, elem)))
 			adapter.write(this, elem, data);
+		
+		else if (valueType.isEnum())
+			EnumAdapter.writeEnum(this, elem, (Enum<?>) data);
 		else if (!isSerialized(data, elem))
 		{
 			if (valueType.isRecord())
