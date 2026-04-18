@@ -35,7 +35,7 @@ In addition it is possible to implement a new `TypeAdapter` and register it, in 
 <dependency>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xml_config_4j</artifactId>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
@@ -46,6 +46,11 @@ In addition it is possible to implement a new `TypeAdapter` and register it, in 
     <th>library version</th>
     <th align="center">Download</th>
     <th align="center">java version</th>
+  </tr>
+  <tr>
+    <td>4.1.0</td>
+    <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v4.1.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">21+</td>
   </tr>
   <tr>
     <td>4.0.0</td>
@@ -172,28 +177,22 @@ public class TinyExample
     return list;
   }
   
-  public static void main(String[] args)
-    throws Exception
+  public static void main(String[] args) throws Exception
   {
-    if (config.exists())
-      try (var iStream = new FileInputStream(config))
-      {
-        var data = (TinyExample) xdb.fromXml(iStream);
-        System.out.printf(
-          "List:\n\t%s\n\nsomeNumber:\n\t%s\n\nPI:\n\t%s\n\nMap:\n\t%s\n\nSet:\n\t%s\n\nArray:\n\t%s\n\ncc == cc2 : %s\n\n",
-          data.favoriteFoods.stream().reduce((a, b) -> a + "\n\t" + b).orElse(""),
-          data.someNumber,
-          data.cc.pi,
-          data.map.entrySet().stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
-          data.set.stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
-          Arrays.deepToString(data.array),
-          data.cc == data.cc2);
-      }
-    else
-      try (var oStream = new FileOutputStream(config))
-      {
-        xdb.toXml(new TinyExample(), oStream);
-      }
+    final var builder = new PersistableResourceBuilder<TinyExample>(xdb, false, TinyExample.class);
+    try (final var resource = builder.fromFile(config, TinyExample::new))
+    {
+      final var data = resource.data();
+      System.out.printf(
+        "List:\n\t%s\n\nsomeNumber:\n\t%s\n\nPI:\n\t%s\n\nMap:\n\t%s\n\nSet:\n\t%s\n\nArray:\n\t%s\n\ncc == cc2 : %s\n\n",
+        data.favoriteFoods.stream().reduce((a, b) -> a + "\n\t" + b).orElse(""),
+        data.someNumber,
+        data.cc.pi,
+        data.map.entrySet().stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
+        data.set.stream().map(Objects::toString).reduce((a, b) -> a + "\n\t" + b).orElse(""),
+        Arrays.deepToString(data.array),
+        data.cc == data.cc2);
+    }
   }
 }
 ```
