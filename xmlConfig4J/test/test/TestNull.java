@@ -100,82 +100,17 @@ public class TestNull implements Validator, GenericUtils
 	public String toString()
 	{
 		return toString(this);
-		// return """
-		// TestNull{
-		// a='%s'
-		// b=%s
-		// c=%s
-		// d=%s
-		// e=%s
-		// f=%s
-		// g=%s
-		// h=%s
-		// i=%s
-		// j=%s
-		// k=%s
-		// l=%s
-		// m=%s
-		// n=%s
-		// o=%s
-		// }
-		// """.formatted(
-		// a,
-		// b,
-		// c,
-		// d,
-		// e,
-		// Arrays.toString(f),
-		// Arrays.toString(g),
-		// Arrays.toString(h),
-		// Arrays.toString(i),
-		// Arrays.toString(j),
-		// Arrays.toString(k),
-		// Arrays.toString(l),
-		// Arrays.toString(m),
-		// Arrays.toString(v),
-		// Arrays.toString(w));
 	}
 	
 	@Override
 	public boolean equals(Object o)
 	{
 		return equals(this, o);
-		// if (!(o instanceof TestNull testNull))
-		// return false;
-		// return Objects.equals(a, testNull.a)
-		// && b == testNull.b
-		// && Objects.equals(c, testNull.c)
-		// && Objects.equals(d, testNull.d)
-		// && Objects.equals(e, testNull.e)
-		// && Objects.deepEquals(f, testNull.f)
-		// && Objects.deepEquals(g, testNull.g)
-		// && Objects.deepEquals(h, testNull.h)
-		// && Objects.deepEquals(i, testNull.i)
-		// && Objects.deepEquals(j, testNull.j)
-		// && Objects.deepEquals(k, testNull.k)
-		// && Objects.deepEquals(l, testNull.l)
-		// && Objects.deepEquals(m, testNull.m)
-		// && Objects.deepEquals(v, testNull.v);
 	}
 	
 	@Override
 	public int hashCode()
 	{
 		return hashCode(this);
-		// return Objects.hash(
-		// a,
-		// b,
-		// c,
-		// d,
-		// e,
-		// Arrays.hashCode(f),
-		// Arrays.hashCode(g),
-		// Arrays.hashCode(h),
-		// Arrays.hashCode(i),
-		// Arrays.hashCode(j),
-		// Arrays.hashCode(k),
-		// Arrays.hashCode(l),
-		// Arrays.hashCode(m),
-		// Arrays.hashCode(v));
 	}
 }

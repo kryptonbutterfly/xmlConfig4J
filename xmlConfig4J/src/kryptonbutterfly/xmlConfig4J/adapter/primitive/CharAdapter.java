@@ -5,6 +5,8 @@ import static kryptonbutterfly.xmlConfig4J.utils.InternalConstants.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
+import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
@@ -25,13 +27,13 @@ public final class CharAdapter implements TypeAdapter<Character>
 	}
 	
 	@Override
-	public void write(XmlWriter writer, Element elem, Character value)
+	public void write(CommentWriter cw, XmlWriter writer, Element elem, Character value)
 	{
 		write(writer.getTags().valueTag(), elem, value);
 	}
 	
 	@Override
-	public Character read(XmlReader reader, Node node, Class<?> classOfT)
+	public Character read(CommentReader cr, XmlReader reader, Node node, Class<?> classOfT)
 	{
 		return read(reader.getTags().valueTag(), node);
 	}

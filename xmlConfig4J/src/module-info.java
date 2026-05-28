@@ -10,6 +10,7 @@ module kryptonbutterfly.xmlConfig4J
 	exports kryptonbutterfly.xmlConfig4J.adapter.misc;
 	exports kryptonbutterfly.xmlConfig4J.adapter.collections;
 	exports kryptonbutterfly.xmlConfig4J.persistence;
+	exports kryptonbutterfly.xmlConfig4J.comments.path;
 	
 	requires transitive java.xml;
 	requires transitive java.desktop;

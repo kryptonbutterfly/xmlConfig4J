@@ -10,7 +10,7 @@ import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 
 public record PersistableResourceBuilder<Data>(XmlDataBinding binding, boolean persistNotDirty, Class<Data> classOfData)
 {
-	public PersistableResource<Data> fromFile(File file, Supplier<Data> fallback)
+	public PersistableResource<Data> fromFile(File file, Supplier<Data> fallback, boolean preserveComments)
 		throws FileNotFoundException,
 		IOException
 	{
@@ -18,18 +18,28 @@ public record PersistableResourceBuilder<Data>(XmlDataBinding binding, boolean p
 		Objects.requireNonNull(file);
 		Objects.requireNonNull(fallback);
 		
-		final var resource = new PersistableFileData<Data>(binding, persistNotDirty, file, classOfData);
+		final var resource = new PersistableFileData<Data>(
+			binding,
+			persistNotDirty,
+			file,
+			classOfData,
+			preserveComments);
 		resource.load(fallback);
 		return resource;
 	}
 	
-	public PersistableResource<Data> create(File file, Data data, Supplier<Data> fallback)
+	public PersistableResource<Data> create(File file, Data data, Supplier<Data> fallback, boolean preserveComments)
 	{
 		Objects.requireNonNull(binding);
 		Objects.requireNonNull(file);
 		Objects.requireNonNull(fallback);
 		
-		final var resource = new PersistableFileData<Data>(binding, persistNotDirty, file, classOfData);
+		final var resource = new PersistableFileData<Data>(
+			binding,
+			persistNotDirty,
+			file,
+			classOfData,
+			preserveComments);
 		resource.data(data);
 		return resource;
 	}

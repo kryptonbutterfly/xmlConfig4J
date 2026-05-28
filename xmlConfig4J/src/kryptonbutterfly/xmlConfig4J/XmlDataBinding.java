@@ -15,9 +15,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,10 +34,13 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
+import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
+import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
+import kryptonbutterfly.xmlConfig4J.comments.path.PathTypeRef;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
@@ -98,27 +103,32 @@ public final class XmlDataBinding
 		return factory.newDocumentBuilder();
 	}
 	
-	private HashMap<Integer, String> readTypeMappings(Node mappings)
+	private HashMap<Integer, String> readTypeMappings(CommentReader rootInner, Node mappings)
 	{
+		Objects.requireNonNull(mappings);
 		final var typeMappings = new HashMap<Integer, String>();
-		if (mappings == null)
-			return typeMappings;
-		
-		for (var item : new Nodes(mappings.getChildNodes()))
+		try (var r = rootInner.push(GeneralPath.create(tags, mappings)))
 		{
-			try
-			{
-				final var	idAttr		= (Attr) item.getAttributes().getNamedItem(tags.idTag());
-				final var	typeAttr	= (Attr) item.getAttributes().getNamedItem(tags.nameTag());
-				final var	id			= Integer.valueOf(idAttr.getValue());
-				final var	type		= typeAttr.getValue();
-				if (type != null)
-					typeMappings.put(id, type);
-			}
-			catch (NumberFormatException e)
-			{
-				throw e; // TODO reevaluate!
-			}
+			for (var item : new Nodes(mappings.getChildNodes()))
+				if (item instanceof org.w3c.dom.Comment comment)
+					r.addComment(comment);
+				else
+				{
+					final var	idAttr		= (Attr) item.getAttributes().getNamedItem(tags.idTag());
+					final var	typeAttr	= (Attr) item.getAttributes().getNamedItem(tags.nameTag());
+					final var	id			= Integer.valueOf(idAttr.getValue());
+					final var	type		= typeAttr.getValue();
+					if (type != null)
+					{
+						typeMappings.put(id, type);
+						try (var itemR = r.push(new PathTypeRef(type)))
+						{}
+					}
+				}
+		}
+		catch (NumberFormatException e)
+		{
+			throw e; // TODO reevaluate!
 		}
 		return typeMappings;
 	}
@@ -135,9 +145,14 @@ public final class XmlDataBinding
 	
 	public <T> T fromXml(String xml)
 	{
+		return fromXml(null, xml);
+	}
+	
+	public <T> T fromXml(Comments comments, String xml)
+	{
 		try (final var iStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))
 		{
-			return fromXml(iStream);
+			return fromXml(comments, iStream);
 		}
 		catch (IOException e)
 		{
@@ -147,9 +162,14 @@ public final class XmlDataBinding
 	
 	public <T> T fromXml(String xml, Class<T> classOfT)
 	{
+		return fromXml(null, xml, classOfT);
+	}
+	
+	public <T> T fromXml(Comments comments, String xml, Class<T> classOfT)
+	{
 		try (final var iStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))
 		{
-			return fromXml(iStream, classOfT);
+			return fromXml(comments, iStream, classOfT);
 		}
 		catch (IOException e)
 		{
@@ -159,9 +179,14 @@ public final class XmlDataBinding
 	
 	public <T> T fromXml(InputStream iStream)
 	{
+		return fromXml(null, iStream);
+	}
+	
+	public <T> T fromXml(Comments comments, InputStream iStream)
+	{
 		try
 		{
-			return fromDoc(docBuilder().parse(prepareInput(iStream)));
+			return fromDoc(comments, docBuilder().parse(prepareInput(iStream)));
 		}
 		catch (
 			ParserConfigurationException
@@ -182,9 +207,14 @@ public final class XmlDataBinding
 	
 	public <T> T fromXml(InputStream iStream, Class<T> classOfT)
 	{
+		return fromXml(null, iStream, classOfT);
+	}
+	
+	public <T> T fromXml(Comments comments, InputStream iStream, Class<T> classOfT)
+	{
 		try
 		{
-			return fromDoc(docBuilder().parse(prepareInput(iStream)), classOfT);
+			return fromDoc(comments, docBuilder().parse(prepareInput(iStream)), classOfT);
 		}
 		catch (
 			ParserConfigurationException
@@ -205,21 +235,31 @@ public final class XmlDataBinding
 	
 	public <T> T fromXml(File inputFile) throws FileNotFoundException, IOException
 	{
+		return fromXml(null, inputFile);
+	}
+	
+	public <T> T fromXml(Comments comments, File inputFile) throws FileNotFoundException, IOException
+	{
 		try (final var iStream = new FileInputStream(inputFile))
 		{
-			return fromXml(iStream);
+			return fromXml(comments, iStream);
 		}
 	}
 	
 	public <T> T fromXml(File inputFile, Class<T> classOfT) throws FileNotFoundException, IOException
 	{
+		return fromXml(null, inputFile, classOfT);
+	}
+	
+	public <T> T fromXml(Comments comments, File inputFile, Class<T> classOfT) throws FileNotFoundException, IOException
+	{
 		try (final var iStream = new FileInputStream(inputFile))
 		{
-			return fromXml(iStream, classOfT);
+			return fromXml(comments, iStream, classOfT);
 		}
 	}
 	
-	private <T> T fromDoc(Document doc)
+	private <T> T fromDoc(Comments comments, Document doc)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		InvocationTargetException,
@@ -229,31 +269,10 @@ public final class XmlDataBinding
 		NoSuchFieldException,
 		BrokenReferenceException
 	{
-		final var rootNodeList = doc.getElementsByTagName(tags.rootTag());
-		if (rootNodeList.getLength() == 0)
-			return null;
-		
-		final var	root	= rootNodeList.item(0);
-		final var	nodes	= root.getChildNodes();
-		
-		Node	typesNode	= null;
-		Node	dataNode	= null;
-		for (final var node : new Nodes(nodes))
-		{
-			final var nodeName = node.getNodeName();
-			if (nodeName.equals(tags.typesTag()))
-				typesNode = node;
-			else if (nodeName.equals(tags.dataTag()))
-				dataNode = node;
-			else
-				System.err.printf("Ignoring unexpected node: '%s'\n", nodeName);
-		}
-		
-		final var reader = new XmlReader(this, readTypeMappings(typesNode), declaredOnly);
-		return reader.read(dataNode);
+		return fromDoc(comments, doc, null);
 	}
 	
-	private <T> T fromDoc(Document doc, Class<T> classOfT)
+	private <T> T fromDoc(Comments comments, Document doc, Class<T> classOfT)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		InvocationTargetException,
@@ -263,80 +282,169 @@ public final class XmlDataBinding
 		NoSuchFieldException,
 		BrokenReferenceException
 	{
-		final var rootNodeList = doc.getElementsByTagName(tags.rootTag());
-		if (rootNodeList.getLength() == 0)
-			return null;
+		if (comments == null)
+			comments = new Comments(false);
 		
-		final var	root	= rootNodeList.item(0);
-		final var	nodes	= root.getChildNodes();
+		T result = null;
 		
-		Node	typesNode	= null;
-		Node	dataNode	= null;
-		for (final var node : new Nodes(nodes))
+		try (var rootPreReader = comments.new DocReader())
 		{
-			final var nodeName = node.getNodeName();
-			if (nodeName.equals(tags.typesTag()))
-				typesNode = node;
-			else if (nodeName.equals(tags.dataTag()))
-				dataNode = node;
-			else
-				System.err.printf("Ignoring unexpected node: '%s'\n", nodeName);
+			for (var n : new Nodes(doc.getChildNodes()))
+				if (n instanceof org.w3c.dom.Comment c)
+					rootPreReader.addComment(c);
+				else if (n.getNodeName().equals(tags.rootTag()))
+				{
+					final var root = n;
+					try (var rootInner = rootPreReader.push(GeneralPath.create(tags, root)))
+					{
+						var		typesMapping	= new HashMap<Integer, String>();
+						Node	dataNode		= null;
+						
+						var					commentBuffer		= new ArrayList<String>();
+						ArrayList<String>	dataCommentBuffer	= null;
+						
+						for (final var node : new Nodes(root.getChildNodes()))
+						{
+							final var nodeName = node.getNodeName();
+							if (node instanceof org.w3c.dom.Comment c)
+								commentBuffer.add(c.getData());
+							else if (nodeName.equals(tags.typesTag()))
+							{
+								rootInner.buffer.addAll(commentBuffer);
+								commentBuffer.clear();
+								typesMapping = readTypeMappings(rootInner, node);
+								
+							}
+							else if (nodeName.equals(tags.dataTag()))
+							{
+								dataCommentBuffer	= commentBuffer;
+								commentBuffer		= new ArrayList<String>();
+								dataNode			= node;
+							}
+							else
+								System.err.printf("Ignoring unexpected node: '%s'\n", nodeName);
+						}
+						
+						final var reader = new XmlReader(this, typesMapping, declaredOnly);
+						
+						rootInner.buffer = dataCommentBuffer;
+						try (var rData = rootInner.push(GeneralPath.create(tags, dataNode)))
+						{
+							result = classOfT != null
+								? reader.read(rData, dataNode, classOfT)
+									: reader.read(rData, dataNode);
+						}
+						rootInner.buffer = commentBuffer;
+					}
+				}
+				else
+					System.err.printf("Ignoring unexpected node: '%s'\n", n.getNodeName());
+			// EVAL if throwing an exception is more appropriate.
 		}
-		
-		final var reader = new XmlReader(this, readTypeMappings(typesNode), declaredOnly);
-		return reader.read(dataNode, classOfT);
+		return result;
 	}
 	
 	public <T> void toXml(T data, StreamResult output)
+		throws IllegalAccessException,
+		ParserConfigurationException,
+		TransformerException
+	{
+		toXml(null, data, output);
+	}
+	
+	public <T> void toXml(Comments comments, T data, StreamResult output)
 		throws ParserConfigurationException,
 		TransformerException,
 		IllegalAccessException
 	{
-		final var	factory		= DocumentBuilderFactory.newInstance();
-		final var	parser		= factory.newDocumentBuilder();
-		final var	document	= parser.newDocument();
-		final var	writer		= new XmlWriter(this, document, declaredOnly);
+		if (comments == null)
+			comments = new Comments(false);
 		
-		final var	rootElement	= document.createElement(tags.rootTag());
-		final var	dataElement	= document.createElement(tags.dataTag());
-		writer.writeType(dataElement, data.getClass());
-		writer.write(dataElement, data);
+		final var	factory	= DocumentBuilderFactory.newInstance();
+		final var	parser	= factory.newDocumentBuilder();
+		final var	doc		= parser.newDocument();
+		final var	writer	= new XmlWriter(this, doc, declaredOnly);
 		
-		if (mapTypes)
-			rootElement.appendChild(writeTypeMappings(writer));
-		rootElement.appendChild(dataElement);
-		
-		document.appendChild(rootElement);
-		document.normalizeDocument();
+		try (var dw = comments.new DocWriter(doc))
+		{
+			final var rootElement = doc.createElement(tags.rootTag());
+			try (var rw = dw.push(rootElement, GeneralPath.create(tags, tags.rootTag())))
+			{
+				final var		typesElem	= doc.createElement(tags.typesTag());
+				CommentWriter	typesWriter	= null;
+				if (mapTypes)
+				{
+					typesWriter = rw.push(typesElem, GeneralPath.create(tags, tags.typesTag()));
+					rootElement.appendChild(typesElem);
+				}
+				
+				final var dataElement = doc.createElement(tags.dataTag());
+				try (var dataWriter = rw.push(dataElement, GeneralPath.create(tags, dataElement)))
+				{
+					writer.writeType(dataElement, data.getClass());
+					writer.write(dataWriter, dataElement, data);
+					rootElement.appendChild(dataElement);
+				}
+				
+				if (mapTypes)
+					writeTypeMappings(typesWriter, writer, typesElem);
+				
+				doc.appendChild(rootElement);
+				doc.normalizeDocument();
+			}
+		}
 		
 		final var transformer = TransformerFactory.newInstance().newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, indent ? "yes" : "no");
 		if (indent)
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indentAmount));
-		
-		final var input = new DOMSource(document);
+			transformer
+				.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indentAmount));
+		final var input = new DOMSource(doc);
 		transformer.transform(input, output);
 	}
 	
-	public <T> String toXml(T data)
+	public <T> String toXml(T data) throws IllegalAccessException, ParserConfigurationException, TransformerException
+	{
+		return toXml(null, data);
+	}
+	
+	public <T> String toXml(Comments comments, T data)
 		throws ParserConfigurationException,
 		TransformerException,
 		IllegalAccessException
 	{
 		final var writer = new StringWriter();
-		toXml(data, new StreamResult(writer));
+		toXml(comments, data, new StreamResult(writer));
 		return writer.toString();
 	}
 	
 	public <T> void toXml(T data, OutputStream oStream)
+		throws IllegalAccessException,
+		ParserConfigurationException,
+		TransformerException
+	{
+		toXml(null, data, oStream);
+	}
+	
+	public <T> void toXml(Comments comments, T data, OutputStream oStream)
 		throws ParserConfigurationException,
 		TransformerException,
 		IllegalAccessException
 	{
-		toXml(data, new StreamResult(oStream));
+		toXml(comments, data, new StreamResult(oStream));
 	}
 	
 	public <T> void toXml(T data, File outputFile)
+		throws IllegalAccessException,
+		FileNotFoundException,
+		ParserConfigurationException,
+		TransformerException,
+		IOException
+	{
+		toXml(null, data, outputFile);
+	}
+	
+	public <T> void toXml(Comments comments, T data, File outputFile)
 		throws IllegalAccessException,
 		ParserConfigurationException,
 		TransformerException,
@@ -345,19 +453,21 @@ public final class XmlDataBinding
 	{
 		try (final var iStream = new FileOutputStream(outputFile))
 		{
-			toXml(data, iStream);
+			toXml(comments, data, iStream);
 		}
 	}
 	
-	private Element writeTypeMappings(XmlWriter writer)
+	private void writeTypeMappings(CommentWriter cw, XmlWriter writer, Node mapping)
 	{
-		final var mapping = writer.doc.createElement(tags.typesTag());
 		writer.types.forEach((typeName, i) -> {
 			final var type = writer.doc.createElement(tags.itemTag());
 			type.setAttribute(tags.idTag(), i.toString());
 			type.setAttribute(tags.nameTag(), typeName);
-			mapping.appendChild(type);
+			try (var itemW = cw.push(type, new PathTypeRef(typeName)))
+			{
+				mapping.appendChild(type);
+			}
 		});
-		return mapping;
+		cw.close();
 	}
 }

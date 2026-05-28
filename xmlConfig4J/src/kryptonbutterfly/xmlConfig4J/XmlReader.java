@@ -7,8 +7,10 @@ import java.util.HashMap;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
 import kryptonbutterfly.xmlConfig4J.adapter.EnumAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.RecordAdapter;
+import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
@@ -104,7 +106,7 @@ public final class XmlReader
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T read(Node node)
+	public <T> T read(CommentReader cr, Node node)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		InstantiationException,
@@ -116,11 +118,11 @@ public final class XmlReader
 	{
 		if (isNull(node))
 			return null;
-		return (T) read(node, getType(node));
+		return (T) read(cr, node, getType(node));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T read(Node node, Class<T> classOfT)
+	public <T> T read(CommentReader cr, Node node, Class<T> classOfT)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		InstantiationException,
@@ -136,18 +138,18 @@ public final class XmlReader
 		
 		final var adapter = c4j.getAdapter(classOfT);
 		if (adapter != null)
-			return (T) adapter.read(this, node, classOfT);
+			return (T) adapter.read(cr, this, node, classOfT);
 		
 		if (classOfT.isEnum())
 			return (T) EnumAdapter.readEnum(this, node, classOfT);
 		
 		if (classOfT.isRecord())
-			return (T) RecordAdapter.readRecord(this, node, classOfT);
+			return (T) RecordAdapter.readRecord(cr, this, node, classOfT);
 		
-		return readAnnotated(node, classOfT);
+		return readAnnotated(cr, node, classOfT);
 	}
 	
-	private <T> T readAnnotated(Node node, Class<T> classOfT)
+	private <T> T readAnnotated(CommentReader cr, Node node, Class<T> classOfT)
 		throws InstantiationException,
 		IllegalAccessException,
 		NoSuchMethodException,
@@ -161,27 +163,32 @@ public final class XmlReader
 		registerInstance(node, data);
 		
 		final var children = node.getChildNodes();
-		for (var child : new Nodes(children))
-		{
-			final var	field		= getField(classOfT, child.getNodeName());
-			final var	annotation	= c4j.includeFieldAnnotation(field);
-			if (annotation != null)
+		for (final var child : new Nodes(children))
+			if (child instanceof org.w3c.dom.Comment comment)
+				cr.addComment(comment);
+			else
 			{
-				// TODO handle annotation specific stuff here!
-				
-				if (isNull(child))
-				{
-					field.set(data, null);
-				}
+				final var	field		= getField(classOfT, child.getNodeName());
+				final var	annotation	= c4j.includeFieldAnnotation(field);
+				if (annotation == null)
+					cr.clear();
 				else
 				{
-					final var type = hasType(child) ? getType(child) : field.getType();
-					
-					final var childData = read(child, type);
-					field.set(data, childData);
+					try (var r = cr.push(GeneralPath.create(c4j.tags, child)))
+					{
+						if (isNull(child))
+							field.set(data, null);
+						else
+						{
+							final var type = hasType(child) ? getType(child) : field.getType();
+							
+							final var childData = read(r, child, type);
+							field.set(data, childData);
+						}
+					}
+					// TODO handle annotation specific stuff here!
 				}
 			}
-		}
 		return data;
 	}
 }

@@ -8,16 +8,24 @@ import java.util.HashMap;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
+import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
 import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 
 public final class RecordAdapter
 {
-	public static <T> void writeRecord(XmlWriter writer, Element elem, T value, Class<? extends T> classOfT)
+	public static <T> void writeRecord(
+		CommentWriter cw,
+		XmlWriter writer,
+		Element elem,
+		T value,
+		Class<? extends T> classOfT)
 		throws IllegalAccessException
 	{
 		if (value == null)
@@ -30,24 +38,27 @@ public final class RecordAdapter
 		{
 			final var	name		= c.getName();
 			final var	childElem	= writer.doc.createElement(name);
-			elem.appendChild(childElem);
-			
-			final var annotation = c.getAnnotation(Value.class);
-			if (annotation != null)
-				childElem.setAttribute(writer.getTags().infoTag(), annotation.value());
-			
-			final var childData = getData(c, value);
-			
-			final var componentType = c.getType();
-			if (childData == null)
-				writer.writeNull(childElem);
-			else if (componentType.isPrimitive())
-				writer.write(childElem, childData, componentType);
-			else
+			try (var w = cw.push(childElem, GeneralPath.create(writer.getTags(), childElem)))
 			{
-				if (requiresType(childData, c))
-					writer.writeType(childElem, childData.getClass());
-				writer.write(childElem, childData);
+				elem.appendChild(childElem);
+				
+				final var annotation = c.getAnnotation(Value.class);
+				if (annotation != null)
+					childElem.setAttribute(writer.getTags().infoTag(), annotation.value());
+				
+				final var childData = getData(c, value);
+				
+				final var componentType = c.getType();
+				if (childData == null)
+					writer.writeNull(childElem);
+				else if (componentType.isPrimitive())
+					writer.write(w, childElem, childData, componentType);
+				else
+				{
+					if (requiresType(childData, c))
+						writer.writeType(childElem, childData.getClass());
+					writer.write(w, childElem, childData);
+				}
 			}
 		}
 	}
@@ -72,7 +83,7 @@ public final class RecordAdapter
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T readRecord(XmlReader reader, Node node, Class<T> classOfT)
+	public static <T> T readRecord(CommentReader cr, XmlReader reader, Node node, Class<T> classOfT)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		InstantiationException,
@@ -93,22 +104,26 @@ public final class RecordAdapter
 		
 		final var rawComponents = new ArrayList<Object>();
 		for (var child : new Nodes(node.getChildNodes()))
-		{
-			// TODO handle annotation specific stuff here!
-			if (reader.isNull(child))
-				rawComponents.add(null);
+			if (child instanceof org.w3c.dom.Comment comment)
+				cr.addComment(comment);
 			else
-			{
-				final Class<?> type;
-				if (reader.hasType(child))
-					type = reader.getType(child);
-				else
-					type = params.get(child.getNodeName());
-				
-				rawComponents.add(reader.read(child, type));
-			}
-		}
-		
+				try (var r = cr.push(GeneralPath.create(reader.getTags(), child)))
+				{
+					if (reader.isNull(child))
+						rawComponents.add(null);
+					else
+					{
+						final Class<?> type;
+						if (reader.hasType(child))
+							type = reader.getType(child);
+						else
+							type = params.get(child.getNodeName());
+						
+						rawComponents.add(reader.read(r, child, type));
+					}
+					// TODO handle annotation specific stuff here!
+				}
+			
 		final var result = (T) constructor.newInstance(rawComponents.toArray(Object[]::new));
 		reader.registerInstance(node, result);
 		return result;

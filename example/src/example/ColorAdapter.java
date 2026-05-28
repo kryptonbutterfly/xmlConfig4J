@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
+import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
@@ -21,7 +23,7 @@ public final class ColorAdapter implements TypeAdapter<Color>
 	}
 	
 	@Override
-	public void write(XmlWriter writer, Element elem, Color value) throws IllegalAccessException
+	public void write(CommentWriter cw, XmlWriter writer, Element elem, Color value) throws IllegalAccessException
 	{
 		if (elem == null)
 			writer.writeNull(elem);
@@ -35,7 +37,7 @@ public final class ColorAdapter implements TypeAdapter<Color>
 	}
 	
 	@Override
-	public Color read(XmlReader reader, Node node, Class<?> classOfT)
+	public Color read(CommentReader cr, XmlReader reader, Node node, Class<?> classOfT)
 		throws ClassNotFoundException,
 		AttributeNotFoundException,
 		NoSuchFieldException,

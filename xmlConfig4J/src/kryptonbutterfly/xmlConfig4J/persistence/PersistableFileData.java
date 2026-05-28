@@ -7,6 +7,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import kryptonbutterfly.xmlConfig4J.Comments;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 
 final class PersistableFileData<Data> implements PersistableResource<Data>
@@ -14,16 +15,23 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 	private String					rawFileContent	= null;
 	private final XmlDataBinding	binding;
 	private final File				file;
-	private Data						data			= null;
-	private final Class<Data>			classOfT;
+	private Data					data			= null;
+	private final Class<Data>		classOfT;
 	private final boolean			persistNotDirty;
+	private Comments				comments;
 	
-	PersistableFileData(XmlDataBinding binding, boolean persistNotDirty, File file, Class<Data> classOfT)
+	PersistableFileData(
+		XmlDataBinding binding,
+		boolean persistNotDirty,
+		File file,
+		Class<Data> classOfT,
+		boolean preserveComments)
 	{
 		this.binding			= binding;
 		this.file				= file;
 		this.classOfT			= classOfT;
 		this.persistNotDirty	= persistNotDirty;
+		this.comments			= preserveComments ? Comments.create() : null;
 	}
 	
 	@Override
@@ -41,17 +49,17 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 		if (persistNotDirty)
 		{
 			if (classOfT == null)
-				data = binding.<Data>fromXml(file);
+				data = binding.<Data>fromXml(comments, file);
 			else
-				data = binding.fromXml(file, classOfT);
+				data = binding.fromXml(comments, file, classOfT);
 			return;
 		}
 		
 		rawFileContent = Files.readString(file.toPath());
 		if (classOfT == null)
-			data = binding.<Data>fromXml(rawFileContent);
+			data = binding.<Data>fromXml(comments, rawFileContent);
 		else
-			data = binding.fromXml(rawFileContent, classOfT);
+			data = binding.fromXml(comments, rawFileContent, classOfT);
 	}
 	
 	@Override
@@ -69,7 +77,7 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 	@Override
 	public void persist() throws Exception
 	{
-		final var output = binding.toXml(data);
+		final var output = binding.toXml(comments, data);
 		
 		if (!persistNotDirty && rawFileContent.equals(output) && file.exists())
 			return;

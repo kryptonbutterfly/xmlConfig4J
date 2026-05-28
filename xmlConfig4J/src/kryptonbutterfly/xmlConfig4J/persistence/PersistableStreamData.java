@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import kryptonbutterfly.xmlConfig4J.Comments;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 
 public final class PersistableStreamData<Data> implements PersistableResource<Data>
@@ -22,19 +23,22 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 	private Data											data		= null;
 	private final Class<Data>								classOfT;
 	private final boolean									persistNotDirty;
+	private Comments										comments;
 	
 	PersistableStreamData(
 		XmlDataBinding binding,
 		boolean persistNotDirty,
 		Class<Data> classOfT,
 		StreamHandler<InputStream, IOException> input,
-		StreamHandler<OutputStream, IOException> output)
+		StreamHandler<OutputStream, IOException> output,
+		boolean persistComments)
 	{
 		this.binding			= binding;
 		this.classOfT			= classOfT;
 		this.persistNotDirty	= persistNotDirty;
 		this.input				= input;
 		this.output				= output;
+		this.comments			= persistComments ? Comments.create() : null;
 	}
 	
 	@Override
@@ -60,7 +64,7 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 				.collect(Collectors.joining("\n"));
 			if (!persistNotDirty)
 				rawContent = data;
-			this.data = binding.fromXml(data);
+			this.data = binding.fromXml(comments, data);
 		});
 		
 	}
@@ -68,7 +72,7 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 	@Override
 	public void persist() throws Exception
 	{
-		final var output = binding.toXml(data);
+		final var output = binding.toXml(comments, data);
 		
 		if (!persistNotDirty && rawContent.equals(output))
 			return;

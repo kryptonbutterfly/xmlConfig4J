@@ -8,9 +8,11 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
 import kryptonbutterfly.xmlConfig4J.adapter.EnumAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.RecordAdapter;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.utils.FunctionThrowing;
 
 public final class XmlWriter
@@ -65,16 +67,17 @@ public final class XmlWriter
 		elem.setAttribute(getTags().nullTag(), XmlDataBinding.TRUE);
 	}
 	
-	public <T> void write(Element elem, T data) throws IllegalAccessException
+	public <T> void write(CommentWriter cw, Element elem, T data) throws IllegalAccessException
 	{
 		if (data == null)
 			writeNull(elem);
 		else
-			write(elem, data, data.getClass());
+			write(cw, elem, data, data.getClass());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> void write(Element elem, T data, Class<? extends T> valueType) throws IllegalAccessException
+	public <T> void write(CommentWriter cw, Element elem, T data, Class<? extends T> valueType)
+		throws IllegalAccessException
 	{
 		Objects.requireNonNull(data);
 		
@@ -82,21 +85,20 @@ public final class XmlWriter
 		if (adapter != null
 				&& (adapter.isValueType()
 						|| !isSerialized(data, elem)))
-			adapter.write(this, elem, data);
+			adapter.write(cw, this, elem, data);
 		
 		else if (valueType.isEnum())
 			EnumAdapter.writeEnum(this, elem, (Enum<?>) data);
 		else if (!isSerialized(data, elem))
 		{
 			if (valueType.isRecord())
-				RecordAdapter.writeRecord(this, elem, data, valueType);
+				RecordAdapter.writeRecord(cw, this, elem, data, valueType);
 			else
-				writeAnnotated(elem, data);
+				writeAnnotated(cw, elem, data);
 		}
-		
 	}
 	
-	private <T> void writeAnnotated(Element elem, T data) throws IllegalAccessException
+	private <T> void writeAnnotated(CommentWriter cw, Element elem, T data) throws IllegalAccessException
 	{
 		final var type = data.getClass();
 		for (final var field : getFields.apply(type))
@@ -109,24 +111,26 @@ public final class XmlWriter
 				continue;
 			
 			final var childElem = doc.createElement(field.getName());
-			elem.appendChild(childElem);
-			
-			if (annotation instanceof Value valAnnotation
-					&& !valAnnotation.value().isBlank())
-				childElem.setAttribute(getTags().infoTag(), valAnnotation.value());
-			
-			final var childData = field.get(data);
-			
-			final var fieldType = field.getType();
-			if (childData == null)
-				writeNull(childElem);
-			else if (fieldType.isPrimitive())
-				write(childElem, childData, fieldType);
-			else
+			try (var w = cw.push(childElem, GeneralPath.create(getTags(), childElem)))
 			{
-				if (requiresType(childData, field))
-					writeType(childElem, childData.getClass());
-				write(childElem, childData);
+				elem.appendChild(childElem);
+				if (annotation instanceof Value valAnnotation
+						&& !valAnnotation.value().isBlank())
+					childElem.setAttribute(getTags().infoTag(), valAnnotation.value());
+				
+				final var childData = field.get(data);
+				
+				final var fieldType = field.getType();
+				if (childData == null)
+					writeNull(childElem);
+				else if (fieldType.isPrimitive())
+					write(w, childElem, childData, fieldType);
+				else
+				{
+					if (requiresType(childData, field))
+						writeType(childElem, childData.getClass());
+					write(w, childElem, childData);
+				}
 			}
 		}
 	}
