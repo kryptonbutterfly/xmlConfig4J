@@ -8,7 +8,6 @@ import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
 import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
-import kryptonbutterfly.xmlConfig4J.Nodes;
 import kryptonbutterfly.xmlConfig4J.TypeAdapter;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
@@ -16,6 +15,7 @@ import kryptonbutterfly.xmlConfig4J.comments.path.PathIndexRef;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
 import kryptonbutterfly.xmlConfig4J.utils.IntRange;
+import kryptonbutterfly.xmlConfig4J.utils.Nodes;
 
 @SuppressWarnings("rawtypes")
 public final class ListAdapter implements TypeAdapter<List>

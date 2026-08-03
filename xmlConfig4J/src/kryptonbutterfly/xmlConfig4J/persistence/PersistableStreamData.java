@@ -64,7 +64,7 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 				.collect(Collectors.joining("\n"));
 			if (!persistNotDirty)
 				rawContent = data;
-			this.data = binding.fromXml(comments, data);
+			this.data = binding.fromXml(comments, data, classOfT);
 		});
 		
 	}
@@ -74,7 +74,7 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 	{
 		final var output = binding.toXml(comments, data);
 		
-		if (!persistNotDirty && rawContent.equals(output))
+		if (!persistNotDirty && Objects.equals(rawContent, output))
 			return;
 		this.output.useStream(oStream -> {
 			

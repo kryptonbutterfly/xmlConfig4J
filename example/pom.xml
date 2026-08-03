@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xm-config4j-example</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <name>xmlConfig4J Example</name>
   
 	<distributionManagement>
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>kryptonbutterfly</groupId>
 			<artifactId>xml_config_4j</artifactId>
-			<version>4.2.0</version>
+			<version>4.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>

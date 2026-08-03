@@ -8,15 +8,17 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
+import kryptonbutterfly.xmlConfig4J.DataLocation.InitMethod;
 import kryptonbutterfly.xmlConfig4J.adapter.EnumAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.RecordAdapter;
 import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
+import kryptonbutterfly.xmlConfig4J.utils.Nodes;
 
 public final class XmlReader
 {
-	private final XmlDataBinding			c4j;
+	public final XmlDataBinding				c4j;
 	private final HashMap<Integer, String>	typeMapping;
 	private final boolean					declaredOnly;
 	
@@ -48,6 +50,7 @@ public final class XmlReader
 		var			id		= refID.getValue();
 		final var	result	= references.get(id);
 		if (result == null)
+			// TODO add unit test
 			throw new BrokenReferenceException(id, node);
 		
 		return result;
@@ -77,6 +80,7 @@ public final class XmlReader
 	{
 		final var attr = (Attr) node.getAttributes().getNamedItem(getTags().typeTag());
 		if (attr == null)
+			// TODO add unit test
 			throw new AttributeNotFoundException(getTags().typeTag(), node);
 		final var	typeValue	= attr.getValue();
 		String		typeName	= typeValue;
@@ -176,17 +180,27 @@ public final class XmlReader
 				{
 					try (var r = cr.push(GeneralPath.create(c4j.tags, child)))
 					{
+						final var location = new DataLocation(
+							classOfT,
+							InitMethod.IMPLICIT,
+							field.getType(),
+							field.getName());
+						
 						if (isNull(child))
+						{
+							c4j.handleAnnotations(field.getDeclaredAnnotations(), null, location);
 							field.set(data, null);
+						}
 						else
 						{
 							final var type = hasType(child) ? getType(child) : field.getType();
 							
-							final var childData = read(r, child, type);
+							var childData = read(r, child, type);
+							childData = c4j.handleAnnotations(field.getDeclaredAnnotations(), childData, location)
+								.value();
 							field.set(data, childData);
 						}
 					}
-					// TODO handle annotation specific stuff here!
 				}
 			}
 		return data;

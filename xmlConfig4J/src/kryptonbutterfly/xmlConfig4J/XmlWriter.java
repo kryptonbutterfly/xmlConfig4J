@@ -1,7 +1,10 @@
 package kryptonbutterfly.xmlConfig4J;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -9,15 +12,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
+import kryptonbutterfly.xmlConfig4J.DataLocation.InitMethod;
 import kryptonbutterfly.xmlConfig4J.adapter.EnumAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.RecordAdapter;
-import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.annotations.InfoProperty;
 import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.utils.FunctionThrowing;
 
 public final class XmlWriter
 {
-	private final XmlDataBinding											c4j;
+	public final XmlDataBinding												c4j;
 	final HashMap<String, Integer>											types	= new HashMap<>();
 	private final FunctionThrowing<Field[], Class<?>, SecurityException>	getFields;
 	public final Document													doc;
@@ -114,25 +118,54 @@ public final class XmlWriter
 			try (var w = cw.push(childElem, GeneralPath.create(getTags(), childElem)))
 			{
 				elem.appendChild(childElem);
-				if (annotation instanceof Value valAnnotation
-						&& !valAnnotation.value().isBlank())
-					childElem.setAttribute(getTags().infoTag(), valAnnotation.value());
 				
 				final var childData = field.get(data);
 				
+				final var location = new DataLocation(
+					data.getClass(),
+					InitMethod.IMPLICIT,
+					field.getType(),
+					field.getName());
+				
+				final var annRes = c4j.handleAnnotations(field.getDeclaredAnnotations(), childData, location);
+				if (annRes.info() != null)
+					childElem.setAttribute(getTags().infoTag(), annRes.info());
+				
 				final var fieldType = field.getType();
-				if (childData == null)
+				if (annRes.value() == null)
 					writeNull(childElem);
 				else if (fieldType.isPrimitive())
-					write(w, childElem, childData, fieldType);
+					write(w, childElem, annRes.value(), fieldType);
 				else
 				{
-					if (requiresType(childData, field))
-						writeType(childElem, childData.getClass());
-					write(w, childElem, childData);
+					if (requiresType(annRes.value(), field))
+						writeType(childElem, annRes.value().getClass());
+					write(w, childElem, annRes.value());
 				}
 			}
 		}
+	}
+	
+	public String getInfo(Annotation annotation) throws IllegalAccessException, SecurityException
+	{
+		if (annotation == null)
+			return null;
+		
+		final var infoProperty = Arrays.stream(annotation.annotationType().getDeclaredMethods())
+			.filter(m -> m.isAnnotationPresent(InfoProperty.class))
+			.filter(m -> CharSequence.class.isAssignableFrom(m.getReturnType()))
+			.findFirst()
+			.orElse(null);
+		
+		try
+		{
+			if (infoProperty.invoke(annotation) instanceof String value && !value.isBlank())
+				return value;
+		}
+		catch (IllegalAccessException | InvocationTargetException e)
+		{}
+		
+		return null;
 	}
 	
 	public void writeType(Element elem, Class<?> type)

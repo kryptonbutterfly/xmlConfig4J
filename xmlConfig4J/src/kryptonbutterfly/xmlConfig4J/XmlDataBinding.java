@@ -14,13 +14,16 @@ import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,10 +42,15 @@ import org.xml.sax.SAXException;
 
 import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
 import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
+import kryptonbutterfly.xmlConfig4J.annotations.InfoProperty;
+import kryptonbutterfly.xmlConfig4J.annotations.handlers.Handler;
 import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.comments.path.PathTypeRef;
+import kryptonbutterfly.xmlConfig4J.exceptions.AnnotatedValidationException;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
+import kryptonbutterfly.xmlConfig4J.utils.Nodes;
+import lombok.SneakyThrows;
 
 public final class XmlDataBinding
 {
@@ -58,11 +66,70 @@ public final class XmlDataBinding
 	
 	final Tags tags;
 	
-	private final Function<Field, ? extends Annotation> includeFieldAnnotation;
+	public final Set<Class<? extends Annotation>>									includeFieldAnnotations;
+	private final Map<Class<? extends Annotation>, Handler<? extends Annotation>>	annotationHandler;
 	
 	public Annotation includeFieldAnnotation(Field field)
 	{
-		return includeFieldAnnotation.apply(field);
+		return includeFieldAnnotations.stream()
+			.filter(field::isAnnotationPresent)
+			.map(field::getDeclaredAnnotation)
+			.filter(Objects::nonNull)
+			.findAny()
+			.orElse(null);
+	}
+	
+	public AnnotatedResult handleAnnotations(Annotation[] annotations, Object value, DataLocation location)
+		throws AnnotatedValidationException
+	{
+		if (annotations == null)
+			return null;
+		
+		String info = null;
+		
+		for (var ann : annotations)
+		{
+			final var res = handleAnnotation(ann, value, location);
+			value = res.value();
+			var i = res.info();
+			if (i != null && !i.isBlank())
+			{
+				if (info == null)
+					info = i.toString();
+				else
+					System.err.printf(
+						"Info property of @%s ignored, since another annotation already provided one.\n\t%s %s",
+						ann.annotationType().getSimpleName(),
+						location,
+						location.fieldDesc());
+			}
+		}
+		return new AnnotatedResult(info, value);
+	}
+	
+	@SuppressWarnings("deprecation")
+	private AnnotatedResult handleAnnotation(Annotation annotation, Object value, DataLocation location)
+	{
+		if (annotation == null)
+			return null;
+		
+		var handler = annotationHandler.get(annotation.annotationType());
+		if (handler != null)
+			value = handler.handleRaw(location, annotation, value);
+		
+		return new AnnotatedResult(
+			Arrays.stream(annotation.annotationType().getDeclaredMethods())
+				.filter(m -> m.isAnnotationPresent(InfoProperty.class))
+				.findFirst()
+				.map(m -> getInfo(m, annotation))
+				.orElse(null),
+			value);
+	}
+	
+	@SneakyThrows
+	private static String getInfo(Method m, Annotation ann)
+	{
+		return m.invoke(ann) instanceof CharSequence val ? val.toString() : null;
 	}
 	
 	public TypeAdapter<?> getAdapter(Class<?> cls)
@@ -78,15 +145,17 @@ public final class XmlDataBinding
 		List<TypeAdapter<?>> adapterMap,
 		boolean mapTypes,
 		Tags tags,
-		Function<Field, ? extends Annotation> includeFieldAnnotation,
+		Set<Class<? extends Annotation>> includeFieldAnnotations,
+		HashMap<Class<? extends Annotation>, Handler<? extends Annotation>> annotationHandler,
 		boolean indent,
 		int indentAmount,
 		boolean declaredOnly)
 	{
-		this.classNameHistory		= classNameHistory;
-		this.adapterMap				= adapterMap;
-		this.mapTypes				= mapTypes;
-		this.includeFieldAnnotation	= includeFieldAnnotation;
+		this.classNameHistory			= classNameHistory;
+		this.adapterMap					= adapterMap;
+		this.mapTypes					= mapTypes;
+		this.includeFieldAnnotations	= Collections.unmodifiableSet(includeFieldAnnotations);
+		this.annotationHandler			= Collections.unmodifiableMap(annotationHandler);
 		
 		this.tags = tags;
 		

@@ -12,6 +12,6 @@ public final class TestSet
 	@Test
 	public void test()
 	{
-		validate(new HashSet<>(Set.of("1", "s", "k", "SAD", "fdsgdfgdfg")), true);
+		validate(new HashSet<>(Set.of("1", "s", "k", "SAD", "fdsgdfgdfg")));
 	}
 }

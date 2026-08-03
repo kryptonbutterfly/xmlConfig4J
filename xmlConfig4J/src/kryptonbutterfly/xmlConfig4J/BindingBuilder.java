@@ -1,13 +1,14 @@
 package kryptonbutterfly.xmlConfig4J;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.function.Function;
 
 import kryptonbutterfly.xmlConfig4J.adapter.arrays.BoolArrayAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.arrays.ByteArrayAdapter;
@@ -39,15 +40,20 @@ import kryptonbutterfly.xmlConfig4J.adapter.primitive.FloatAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.IntAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.LongAdapter;
 import kryptonbutterfly.xmlConfig4J.adapter.primitive.ShortAdapter;
+import kryptonbutterfly.xmlConfig4J.annotations.InfoProperty;
 import kryptonbutterfly.xmlConfig4J.annotations.Value;
+import kryptonbutterfly.xmlConfig4J.annotations.handlers.Handler;
+import kryptonbutterfly.xmlConfig4J.utils.ArrayUtils;
 import kryptonbutterfly.xmlConfig4J.utils.InternalConstants;
 
 public final class BindingBuilder
 {
-	private final HashMap<String, Class<?>>				classNameHistory		= new HashMap<>();
-	private final HashSet<Class<? extends Annotation>>	includeFieldAnnotations	= new HashSet<>();
-	private final ArrayList<TypeAdapter<?>>				adapterMap				= new ArrayList<>();
-	private final HashMap<XmlTags, String>				tags					= XmlTags.createTagsMap();
+	private final HashMap<String, Class<?>>												classNameHistory		= new HashMap<>();
+	private final HashSet<Class<? extends Annotation>>									includeFieldAnnotations	= new HashSet<>();
+	private final ArrayList<TypeAdapter<?>>												adapterMap				= new ArrayList<>();
+	private final HashMap<XmlTags, String>												tags					= XmlTags
+		.createTagsMap();
+	private final HashMap<Class<? extends Annotation>, Handler<? extends Annotation>>	annotationHandler		= new HashMap<>();
 	
 	private boolean	mapTypes		= true;
 	private boolean	indent			= true;
@@ -125,7 +131,60 @@ public final class BindingBuilder
 	public BindingBuilder addIncludeAnnotation(Class<? extends Annotation> annotation)
 	{
 		Objects.requireNonNull(annotation);
+		final Retention retention = annotation.getDeclaredAnnotation(Retention.class);
+		if (retention == null || retention.value() != RetentionPolicy.RUNTIME)
+			throw new IllegalStateException(
+				"\n\tat %s.<cinit>(%s.java:-1) must be annotated with %s"
+					.formatted(
+						annotation.getName(),
+						annotation.getSimpleName(),
+						"@Retention(RUNTIME)"));
+		
+		final Target target = annotation.getDeclaredAnnotation(Target.class);
+		if (target == null || !ArrayUtils.containsAll(target.value(), ElementType.FIELD, ElementType.RECORD_COMPONENT))
+			throw new IllegalStateException(
+				"\n\tat %s.<clinit>(%s.java:-1) must be annotated with %s"
+					.formatted(
+						annotation.getName(),
+						annotation.getSimpleName(),
+						"@Target({ FIELD, RECORD_COMPONENT })"));
+		
+		long infoCount = 0;
+		for (var m : annotation.getDeclaredMethods())
+		{
+			final var info = m.getDeclaredAnnotation(InfoProperty.class);
+			if (info != null)
+			{
+				infoCount++;
+				if (!CharSequence.class.isAssignableFrom(m.getReturnType()))
+					throw new IllegalStateException(
+						"@%s is only allowed to be applied to a property of type or subtype of CharSequence, but was applied to \n\tat %s.%5$s(%s.java:-1) { %s %s }"
+							.formatted(
+								InfoProperty.class.getSimpleName(),
+								annotation.getName(),
+								annotation.getSimpleName(),
+								m.getReturnType().getSimpleName(),
+								m.getName()));
+			}
+		}
+		if (infoCount > 1)
+			throw new IllegalStateException(
+				"At most one annotation property per annotation may be annotated with @%s, but \n\tat %s.<cinit>(%s.java:-1) has %d properties annotated with @%1$s."
+					.formatted(
+						InfoProperty.class.getSimpleName(),
+						annotation.getName(),
+						annotation.getSimpleName(),
+						infoCount));
+		
 		includeFieldAnnotations.add(annotation);
+		return this;
+	}
+	
+	public BindingBuilder addAnnotationHandler(Handler<? extends Annotation> handler)
+	{
+		Objects.requireNonNull(handler);
+		addIncludeAnnotation(handler.getType());
+		annotationHandler.put(handler.getType(), handler);
 		return this;
 	}
 	
@@ -139,6 +198,7 @@ public final class BindingBuilder
 	{
 		Objects.requireNonNull(tag);
 		Objects.requireNonNull(tagValue);
+		// TODO add unit test
 		if (!tagValue.matches(InternalConstants.XML_IDENTIFIER_MATCHER))
 			throw new IllegalArgumentException("'%s' is not a valid xml identifier!".formatted(tagValue));
 		
@@ -154,6 +214,7 @@ public final class BindingBuilder
 	
 	public BindingBuilder indent(int indentAmount)
 	{
+		// TODO add unit test
 		if (indentAmount < 1)
 			throw new IllegalArgumentException("The indent amount must be > 0, but was %d.".formatted(indentAmount));
 		
@@ -174,19 +235,10 @@ public final class BindingBuilder
 			adapterMap,
 			mapTypes,
 			XmlTags.fromMap(tags),
-			includeAnnotations(),
+			includeFieldAnnotations,
+			annotationHandler,
 			indent,
 			indentAmount,
 			declaredOnly);
-	}
-	
-	private Function<Field, ? extends Annotation> includeAnnotations()
-	{
-		final var annotations = Collections.unmodifiableSet(includeFieldAnnotations);
-		return field -> annotations.stream()
-			.map(field::getAnnotation)
-			.filter(Objects::nonNull)
-			.findAny()
-			.orElse(null);
 	}
 }

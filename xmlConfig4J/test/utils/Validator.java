@@ -8,11 +8,18 @@ import java.time.temporal.ChronoUnit;
 import kryptonbutterfly.xmlConfig4J.BindingBuilder;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 import kryptonbutterfly.xmlConfig4J.adapter.misc.AwtColorAdapter;
+import kryptonbutterfly.xmlConfig4J.annotations.NonNull;
+import kryptonbutterfly.xmlConfig4J.annotations.handlers.BoundedFpHandler;
+import kryptonbutterfly.xmlConfig4J.annotations.handlers.BoundedHandler;
+import kryptonbutterfly.xmlConfig4J.annotations.handlers.NonNullHandler;
 
 public interface Validator
 {
 	public static final XmlDataBinding c4j = new BindingBuilder()
 		.addTypeAdapter(new AwtColorAdapter())
+		.addAnnotationHandler(new BoundedHandler())
+		.addAnnotationHandler(new BoundedFpHandler())
+		.addAnnotationHandler(new NonNullHandler<>(NonNull.class))
 		.build();
 	
 	default void validate()

@@ -1,4 +1,4 @@
-package kryptonbutterfly.xmlConfig4J;
+package kryptonbutterfly.xmlConfig4J.utils;
 
 import java.util.Iterator;
 import java.util.stream.Stream;

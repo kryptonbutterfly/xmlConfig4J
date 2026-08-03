@@ -79,7 +79,7 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 	{
 		final var output = binding.toXml(comments, data);
 		
-		if (!persistNotDirty && rawFileContent.equals(output) && file.exists())
+		if (!persistNotDirty && Objects.equals(rawFileContent, output) && file.exists())
 			return;
 		Files.writeString(
 			file.toPath(),

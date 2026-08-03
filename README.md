@@ -23,6 +23,9 @@ The intrisically supported java types are:
 
 In addition it is possible to implement a new `TypeAdapter` and register it, in order to support more types.
 
+Furthermore there is a mechanism to preserve xml comments, but only on a best effort basis,
+as well as a way to validate/modify data via annotations.
+
 ## Getting the latest release
 
 ```xml
@@ -35,7 +38,7 @@ In addition it is possible to implement a new `TypeAdapter` and register it, in 
 <dependency>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xml_config_4j</artifactId>
-  <version>4.2.0</version>
+  <version>4.3.0</version>
 </dependency>
 ```
 
@@ -48,8 +51,8 @@ In addition it is possible to implement a new `TypeAdapter` and register it, in 
     <th align="center">java version</th>
   </tr>
   <tr>
-    <td>4.2.0</td>
-    <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v4.2.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td>4.3.0</td>
+    <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v4.3.0/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
     <td align="center">21+</td>
   </tr>
   <tr>

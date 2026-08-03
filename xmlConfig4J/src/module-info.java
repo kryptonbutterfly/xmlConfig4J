@@ -1,7 +1,9 @@
 module kryptonbutterfly.xmlConfig4J
 {
 	exports kryptonbutterfly.xmlConfig4J;
+	exports kryptonbutterfly.xmlConfig4J.utils;
 	exports kryptonbutterfly.xmlConfig4J.annotations;
+	exports kryptonbutterfly.xmlConfig4J.annotations.handlers;
 	exports kryptonbutterfly.xmlConfig4J.exceptions;
 	exports kryptonbutterfly.xmlConfig4J.adapter;
 	exports kryptonbutterfly.xmlConfig4J.adapter.primitive;
@@ -14,4 +16,6 @@ module kryptonbutterfly.xmlConfig4J
 	
 	requires transitive java.xml;
 	requires transitive java.desktop;
+	
+	requires lombok;
 }

@@ -2,21 +2,21 @@ package kryptonbutterfly.xmlConfig4J.adapter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.RecordComponent;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import kryptonbutterfly.xmlConfig4J.Comments.CommentReader;
 import kryptonbutterfly.xmlConfig4J.Comments.CommentWriter;
-import kryptonbutterfly.xmlConfig4J.Nodes;
+import kryptonbutterfly.xmlConfig4J.DataLocation;
+import kryptonbutterfly.xmlConfig4J.DataLocation.InitMethod;
 import kryptonbutterfly.xmlConfig4J.XmlReader;
 import kryptonbutterfly.xmlConfig4J.XmlWriter;
-import kryptonbutterfly.xmlConfig4J.annotations.Value;
 import kryptonbutterfly.xmlConfig4J.comments.path.GeneralPath;
 import kryptonbutterfly.xmlConfig4J.exceptions.AttributeNotFoundException;
 import kryptonbutterfly.xmlConfig4J.exceptions.BrokenReferenceException;
+import kryptonbutterfly.xmlConfig4J.utils.IntRange;
+import kryptonbutterfly.xmlConfig4J.utils.Nodes;
 
 public final class RecordAdapter
 {
@@ -42,22 +42,22 @@ public final class RecordAdapter
 			{
 				elem.appendChild(childElem);
 				
-				final var annotation = c.getAnnotation(Value.class);
-				if (annotation != null)
-					childElem.setAttribute(writer.getTags().infoTag(), annotation.value());
+				final var location = new DataLocation(classOfT, InitMethod.CONSTRUCTOR, c.getType(), c.getName());
 				
-				final var childData = getData(c, value);
+				final var annRes = writer.c4j
+					.handleAnnotations(c.getDeclaredAnnotations(), getData(c, value), location);
+				childElem.setAttribute(writer.getTags().infoTag(), annRes.info());
 				
 				final var componentType = c.getType();
-				if (childData == null)
+				if (annRes.value() == null)
 					writer.writeNull(childElem);
 				else if (componentType.isPrimitive())
-					writer.write(w, childElem, childData, componentType);
+					writer.write(w, childElem, annRes.value(), componentType);
 				else
 				{
-					if (requiresType(childData, c))
-						writer.writeType(childElem, childData.getClass());
-					writer.write(w, childElem, childData);
+					if (requiresType(annRes.value(), c))
+						writer.writeType(childElem, annRes.value().getClass());
+					writer.write(w, childElem, annRes.value());
 				}
 			}
 		}
@@ -98,34 +98,58 @@ public final class RecordAdapter
 		
 		final var constructor = classOfT.getConstructors()[0];
 		
-		final var params = new HashMap<String, Class<?>>();
-		for (var p : constructor.getParameters())
-			params.put(p.getName(), p.getType());
-		
-		final var rawComponents = new ArrayList<Object>();
+		final var rawComponents = new Object[constructor.getParameters().length];
 		for (var child : new Nodes(node.getChildNodes()))
 			if (child instanceof org.w3c.dom.Comment comment)
 				cr.addComment(comment);
 			else
 				try (var r = cr.push(GeneralPath.create(reader.getTags(), child)))
 				{
-					if (reader.isNull(child))
-						rawComponents.add(null);
+					final int index = componentIndex(classOfT, child.getNodeName());
+					if (index == -1)
+						System.err.printf("Ignoring unexpected node: '%s'\n", child.getNodeName());
 					else
 					{
-						final Class<?> type;
-						if (reader.hasType(child))
-							type = reader.getType(child);
+						Object value;
+						if (reader.isNull(child))
+							value = null;
 						else
-							type = params.get(child.getNodeName());
+						{
+							final Class<?> type;
+							if (reader.hasType(child))
+								type = reader.getType(child);
+							else
+								type = constructor.getParameterTypes()[index];
+							
+							value = reader.read(r, child, type);
+						}
 						
-						rawComponents.add(reader.read(r, child, type));
+						final var component = classOfT.getRecordComponents()[index];
+						
+						final var location = new DataLocation(
+							classOfT,
+							InitMethod.CONSTRUCTOR,
+							component.getType(),
+							component.getName());
+						
+						final var comp = classOfT.getRecordComponents()[index];
+						value = reader.c4j.handleAnnotations(comp.getDeclaredAnnotations(), value, location).value();
+						
+						rawComponents[index] = value;
 					}
-					// TODO handle annotation specific stuff here!
 				}
 			
-		final var result = (T) constructor.newInstance(rawComponents.toArray(Object[]::new));
+		final var result = (T) constructor.newInstance(rawComponents);
 		reader.registerInstance(node, result);
 		return result;
+	}
+	
+	private static <T> int componentIndex(Class<T> classOfT, String name)
+	{
+		final var components = classOfT.getRecordComponents();
+		for (int i : new IntRange(components.length))
+			if (components[i].getName().equals(name))
+				return i;
+		return -1;
 	}
 }
