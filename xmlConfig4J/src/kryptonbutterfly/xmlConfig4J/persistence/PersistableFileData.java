@@ -81,6 +81,11 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 		
 		if (!persistNotDirty && Objects.equals(rawFileContent, output) && file.exists())
 			return;
+		
+		final var parent = file.getParentFile();
+		if (!parent.exists())
+			parent.mkdirs();
+		
 		Files.writeString(
 			file.toPath(),
 			output,
