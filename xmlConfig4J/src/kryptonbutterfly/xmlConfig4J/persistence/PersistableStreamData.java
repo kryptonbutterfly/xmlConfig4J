@@ -11,19 +11,12 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import kryptonbutterfly.xmlConfig4J.Comments;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 
-public final class PersistableStreamData<Data> implements PersistableResource<Data>
+public final class PersistableStreamData<Data> extends PersistableResource<Data>
 {
-	private String											rawContent	= null;
-	private final XmlDataBinding							binding;
 	private final StreamHandler<InputStream, IOException>	input;
 	private final StreamHandler<OutputStream, IOException>	output;
-	private Data											data		= null;
-	private final Class<Data>								classOfT;
-	private final boolean									persistNotDirty;
-	private Comments										comments;
 	
 	PersistableStreamData(
 		XmlDataBinding binding,
@@ -31,26 +24,11 @@ public final class PersistableStreamData<Data> implements PersistableResource<Da
 		Class<Data> classOfT,
 		StreamHandler<InputStream, IOException> input,
 		StreamHandler<OutputStream, IOException> output,
-		boolean persistComments)
+		boolean preserveComments)
 	{
-		this.binding			= binding;
-		this.classOfT			= classOfT;
-		this.persistNotDirty	= persistNotDirty;
-		this.input				= input;
-		this.output				= output;
-		this.comments			= persistComments ? Comments.create() : null;
-	}
-	
-	@Override
-	public Data data()
-	{
-		return data;
-	}
-	
-	@Override
-	public void data(Data data)
-	{
-		this.data = data;
+		super(binding, persistNotDirty, classOfT, preserveComments);
+		this.input	= input;
+		this.output	= output;
 	}
 	
 	@Override

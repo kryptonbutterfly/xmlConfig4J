@@ -38,7 +38,7 @@ as well as a way to validate/modify data via annotations.
 <dependency>
   <groupId>kryptonbutterfly</groupId>
   <artifactId>xml_config_4j</artifactId>
-  <version>4.3.1</version>
+  <version>4.3.2</version>
 </dependency>
 ```
 
@@ -49,6 +49,11 @@ as well as a way to validate/modify data via annotations.
     <th>library version</th>
     <th align="center">Download</th>
     <th align="center">java version</th>
+  </tr>
+  <tr>
+    <td>4.3.2</td>
+    <td align="center" valign="center"><a href="https://github.com/kryptonbutterfly/xmlConfig4J/releases/download/v4.3.2/xmlConfig4J.jar"><b>xmlConfig4J.jar</b></a></td>
+    <td align="center">21+</td>
   </tr>
   <tr>
     <td>4.3.1</td>

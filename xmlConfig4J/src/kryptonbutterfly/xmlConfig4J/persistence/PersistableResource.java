@@ -1,21 +1,57 @@
 package kryptonbutterfly.xmlConfig4J.persistence;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-public interface PersistableResource<T> extends AutoCloseable
+import kryptonbutterfly.xmlConfig4J.Comments;
+import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
+
+public abstract class PersistableResource<Data> implements AutoCloseable
 {
-	public T data();
+	final XmlDataBinding	binding;
+	final Class<Data>		classOfT;
+	final boolean			persistNotDirty;
 	
-	public void data(T data);
+	String		rawContent	= null;
+	Data		data			= null;
+	Comments	comments;
 	
-	void load(Supplier<T> fallback) throws IOException;
+	PersistableResource(
+		XmlDataBinding binding,
+		boolean persistNotDirty,
+		Class<Data> classOfT,
+		boolean preserveComments)
+	{
+		this.binding			= binding;
+		this.classOfT			= classOfT;
+		this.persistNotDirty	= persistNotDirty;
+		this.comments			= preserveComments ? Comments.create() : null;
+	}
 	
-	public void persist() throws Exception;
+	public final Data data()
+	{
+		return data;
+	}
+	
+	public final void data(Data data)
+	{
+		this.data = data;
+	}
 	
 	@Override
-	default void close() throws Exception
+	public final void close() throws Exception
 	{
 		persist();
 	}
+	
+	public final boolean isDirty() throws Exception
+	{
+		final var output = binding.toXml(comments, data);
+		return !Objects.equals(rawContent, output);
+	}
+	
+	public abstract void load(Supplier<Data> fallback) throws IOException;
+	
+	public abstract void persist() throws Exception;
 }

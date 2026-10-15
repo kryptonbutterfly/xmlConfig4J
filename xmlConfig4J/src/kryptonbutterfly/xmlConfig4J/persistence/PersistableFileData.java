@@ -7,18 +7,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import kryptonbutterfly.xmlConfig4J.Comments;
 import kryptonbutterfly.xmlConfig4J.XmlDataBinding;
 
-final class PersistableFileData<Data> implements PersistableResource<Data>
+final class PersistableFileData<Data> extends PersistableResource<Data>
 {
-	private String					rawFileContent	= null;
-	private final XmlDataBinding	binding;
-	private final File				file;
-	private Data					data			= null;
-	private final Class<Data>		classOfT;
-	private final boolean			persistNotDirty;
-	private Comments				comments;
+	private final File file;
 	
 	PersistableFileData(
 		XmlDataBinding binding,
@@ -27,11 +20,8 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 		Class<Data> classOfT,
 		boolean preserveComments)
 	{
-		this.binding			= binding;
-		this.file				= file;
-		this.classOfT			= classOfT;
-		this.persistNotDirty	= persistNotDirty;
-		this.comments			= preserveComments ? Comments.create() : null;
+		super(binding, persistNotDirty, classOfT, preserveComments);
+		this.file = file;
 	}
 	
 	@Override
@@ -42,7 +32,7 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 		if (!file.exists())
 		{
 			data			= fallback.get();
-			rawFileContent	= null;
+			rawContent	= null;
 			return;
 		}
 		
@@ -55,23 +45,11 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 			return;
 		}
 		
-		rawFileContent = Files.readString(file.toPath());
+		rawContent = Files.readString(file.toPath());
 		if (classOfT == null)
-			data = binding.<Data>fromXml(comments, rawFileContent);
+			data = binding.<Data>fromXml(comments, rawContent);
 		else
-			data = binding.fromXml(comments, rawFileContent, classOfT);
-	}
-	
-	@Override
-	public Data data()
-	{
-		return data;
-	}
-	
-	@Override
-	public void data(Data data)
-	{
-		this.data = data;
+			data = binding.fromXml(comments, rawContent, classOfT);
 	}
 	
 	@Override
@@ -79,7 +57,7 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 	{
 		final var output = binding.toXml(comments, data);
 		
-		if (!persistNotDirty && Objects.equals(rawFileContent, output) && file.exists())
+		if (!persistNotDirty && Objects.equals(rawContent, output) && file.exists())
 			return;
 		
 		final var parent = file.getParentFile();
@@ -92,6 +70,6 @@ final class PersistableFileData<Data> implements PersistableResource<Data>
 			StandardOpenOption.CREATE,
 			StandardOpenOption.TRUNCATE_EXISTING,
 			StandardOpenOption.WRITE);
-		rawFileContent = output;
+		rawContent = output;
 	}
 }
